@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: shop-app-yandex-practicum-sprint-5
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/yandex-shop
+    username: postgres
+    password: password
