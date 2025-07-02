@@ -1,17 +1,9 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.proxy.HibernateProxy;
-
-import java.util.Objects;
 
 @Entity
 @Table(name = "purchases")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
 public class PurchaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,30 +13,51 @@ public class PurchaseEntity {
     private String purchaseId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @ToString.Exclude
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private ProductEntity productEntity;
 
     @Column(name = "quantity")
     private Integer quantity;
 
-    private Long getId(){
-        return this.id;
+    public PurchaseEntity() {
     }
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        PurchaseEntity that = (PurchaseEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+    public PurchaseEntity(Long id, String purchaseId, ProductEntity productEntity, Integer quantity) {
+        this.id = id;
+        this.purchaseId = purchaseId;
+        this.productEntity = productEntity;
+        this.quantity = quantity;
     }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPurchaseId() {
+        return purchaseId;
+    }
+
+    public void setPurchaseId(String purchaseId) {
+        this.purchaseId = purchaseId;
+    }
+
+    public ProductEntity getProductEntity() {
+        return productEntity;
+    }
+
+    public void setProductEntity(ProductEntity productEntity) {
+        this.productEntity = productEntity;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }

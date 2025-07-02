@@ -1,17 +1,9 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.proxy.HibernateProxy;
-
-import java.util.Objects;
 
 @Entity
 @Table(name = "products")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,23 +19,45 @@ public class ProductEntity {
     @Column(name = "price")
     private Integer price;
 
+    public ProductEntity() {
+    }
+
+    public ProductEntity(Long id, String name, String description, Integer price) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+    }
+
     private Long getId(){
         return this.id;
     }
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        ProductEntity that = (ProductEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
     }
 }
