@@ -1,6 +1,7 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
 import jakarta.persistence.*;
+import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
 
 @Entity
 @Table(name = "products")
@@ -19,18 +20,31 @@ public class ProductEntity {
     @Column(name = "price")
     private Integer price;
 
+    @Column(name = "img_url")
+    private String imgUrl;
+
     public ProductEntity() {
     }
 
-    public ProductEntity(Long id, String name, String description, Integer price) {
+    public ProductEntity(Long id, String name, String description, Integer price, String imgUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.imgUrl = imgUrl;
     }
 
-    private Long getId(){
-        return this.id;
+    public ProductDto toDto() {
+        return new ProductDto(
+                this.name,
+                this.description,
+                this.price,
+                this.imgUrl
+        );
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public void setId(Long id) {
@@ -59,5 +73,13 @@ public class ProductEntity {
 
     public void setPrice(Integer price) {
         this.price = price;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 }

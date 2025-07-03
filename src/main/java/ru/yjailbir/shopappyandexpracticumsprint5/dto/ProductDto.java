@@ -4,11 +4,13 @@ public class ProductDto {
     private String name;
     private String description;
     private Integer price;
+    private String imgUrl;
 
-    public ProductDto(String name, String description, Integer price) {
+    public ProductDto(String name, String description, Integer price, String imgUrl) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.imgUrl = imgUrl;
     }
 
     public String getName() {
@@ -33,5 +35,13 @@ public class ProductDto {
 
     public void setPrice(Integer price) {
         this.price = price;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 }
