@@ -6,44 +6,32 @@
 </head>
 
 <body>
-    <!-- В href ссылка на страницу заказов -->
-    <a href="..." style="float:right;">
+    <a th:href="@{/shop/orders}" style="float:right;">
         <b>ЗАКАЗЫ &cudarrr;</b>
     </a>
-    <!-- В href ссылка на корзину -->
-    <a href="..." style="float:right;">
+    <a th:href="@{/shop/cart}" style="float:right;">
         <b>КОРЗИНА &cudarrr;</b>
     </a>
-    <!-- В href ссылка на главную страницу -->
-    <a href="..." style="float:right;">
+    <a th:href="@{/shop}" style="float:right;">
         <b>ГЛАВНАЯ &cudarrr;</b>
     </a>
     <div style="width:70%;margin-left:auto;margin-right:auto;">
         <p>
-            <!-- В src ссылка изображение товара -->
-            <img width="300" height="300" th:src="...">
+                <span th:if="${product.getImgName() != null and !#strings.isEmpty(product.getImgName())}">
+                    <img height="300" th:src="@{/images/{filename} (filename = ${product.getImgName()})}"/>
+                </span>
         </p>
         <p>
-            <!-- В text название товара -->
-            <b th:text="..."></b>
-            <!-- В text цена товара -->
-            <b th:text="..." style="text-align:right;"></b>
+            <b th:text="${product.getName()}"></b>
+            <b th:text="${product.getPrice()}" style="text-align:right;"></b>
         </p>
         <p>
-            <!-- В text описание товара -->
-            <span th:text="..."></span>
+            <span th:text="${product.getDescription()}"></span>
         </p>
-        <!-- 
-		В action ссылка на изменение количества товара в корзине.
-		Передается параметр запроса action=[minus|plus]
-	-->
-        <form th:action="..." method="post">
-            <button name="action" value="minus">-</button>
-            <!-- В text количество товара в корзине -->
-            <span th:text="..."></span>
+        <form th:action="@{/shop/add/{id} (id = ${product.getId()})}" method="post">
+            <button name="action" th:if="${product.getCountInCart() > 0}" value="minus">-</button>
+            <span th:text="${product.getCountInCart()}"></span>
             <button name="action" value="plus">+</button>
-            <!-- В if true, если товар еще не был добавлен в корзину, false, если уже был -->
-            <button name="action" value="plus" th:if="..." style="float:right;">В корзину</button>
         </form>
     </div>
 </body>
