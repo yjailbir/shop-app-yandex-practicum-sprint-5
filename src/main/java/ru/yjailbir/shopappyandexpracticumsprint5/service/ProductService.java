@@ -102,13 +102,32 @@ public class ProductService {
                         0
                 ));
 
-        if (action.equals("plus")) {
-            cartElement.incrementQuantity();
-        } else if (action.equals("minus")) {
-            cartElement.decrementQuantity();
+        switch (action) {
+            case "plus" -> {
+                cartElement.incrementQuantity();
+                cartElementRepository.save(cartElement);
+            }
+            case "minus" -> {
+                cartElement.decrementQuantity();
+                cartElementRepository.save(cartElement);
+            }
+            case "delete" -> cartElementRepository.delete(cartElement);
+        }
+    }
+
+    public List<ProductDto> getCart() {
+        List<ProductEntity> entities = cartElementRepository.findAll().stream().map(CartElementEntity::getProductEntity).toList();
+        List<ProductDto> result = new ArrayList<>();
+
+        for (ProductEntity productEntity : entities) {
+            result.add(mapEntityToDto(productEntity));
         }
 
-        cartElementRepository.save(cartElement);
+        return result;
+    }
+
+    public Integer getSumFromItemsList(List<ProductDto> products) {
+        return products.stream().mapToInt(x -> (x.getPrice() * x.getCountInCart())).sum();
     }
 
     private ProductDto mapEntityToDto(ProductEntity productEntity) {

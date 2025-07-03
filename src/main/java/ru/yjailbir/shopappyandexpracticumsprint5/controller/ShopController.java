@@ -14,6 +14,7 @@ import java.util.List;
 public class ShopController {
     private final ProductService productService;
 
+
     @Autowired
     public ShopController(ProductService productService) {
         this.productService = productService;
@@ -44,11 +45,30 @@ public class ShopController {
         return "item";
     }
 
-    @PostMapping("/add/{id}")
-    public String addItem(@PathVariable("id") Long id, @RequestParam("action") String action, Model model) {
+    @PostMapping("/change/{id}")
+    public String addItem(
+            @PathVariable("id") Long id
+            , @RequestParam("action") String action,
+            @RequestParam("redirect") String redirect
+    ) {
         productService.changeCountInCart(id, action);
 
-        return "redirect:/shop";
+        if (redirect.equals("main")) {
+            return "redirect:/shop";
+        } else if (redirect.equals("cart")) {
+            return "redirect:/shop/cart";
+        }
+
+        return null;
+    }
+
+    @GetMapping("/cart")
+    public String cart(Model model) {
+        List<ProductDto> products = productService.getCart();
+        model.addAttribute("products", products);
+        model.addAttribute("sum", productService.getSumFromItemsList(products));
+
+        return "cart";
     }
 
     @PostMapping("/add-products")

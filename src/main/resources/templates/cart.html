@@ -6,47 +6,39 @@
 </head>
 
 <body>
-<!-- В href ссылка на страницу заказов -->
-<a href="..." style="float:right;">
+<a th:href="@{/shop/orders}" style="float:right;">
     <b>ЗАКАЗЫ &cudarrr;</b>
 </a>
-<!-- В href ссылка на главную страницу -->
-<a href="..." style="float:right;">
+<a th:href="@{/shop}" style="float:right;">
     <b>ГЛАВНАЯ &cudarrr;</b>
 </a>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
-   <!-- Итерируемся по каждому товару -->
-    <tr th:each="...">
+    <tr th:each="product: ${products}">
         <td>
             <table>
                 <tr>
                     <td>
-                        <!-- В src ссылка изображение товара -->
-                        <img width="300" height="300" th:src="...">
+                        <span th:if="${product.getImgName() != null and !#strings.isEmpty(product.getImgName())}">
+                            <img height="300" th:src="@{/images/{filename} (filename = ${product.getImgName()})}"/>
+                        </span>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <!-- В text название товара -->
-                        <b th:text="..."></b>
+                        <b th:text="${product.getName()}"></b>
                     </td>
                     <td>
-                        <!-- В text цена товара -->
-                        <b th:text="..."></b>
+                        <b th:text="${product.getPrice()}"></b>
                     </td>
                 </tr>
-                <!-- В text описание товара -->
-                <tr><td th:text="..."></td></tr>
+                <tr><td th:text="${product.getDescription()}"></td></tr>
+
                 <tr>
                     <td>
-                    	<!-- 
-                    		В action ссылка на изменение количества товара в корзине.
-                    		Передается параметр запроса action=[minus|plus]
-                    	-->
-                        <form th:action="..." method="post">
-                            <button name="action" value="minus">-</button>
-                            <!-- В text количество товара в корзине -->
-                            <span th:text="..."></span>
+                        <form th:action="@{/shop/change/{id}(id = ${product.getId()})}" method="post">
+                            <input type="hidden" name="redirect" value="cart"/>
+                            <button name="action" th:if="${product.getCountInCart() > 0}" value="minus">-</button>
+                            <span th:text="${product.getCountInCart()}"></span>
                             <button name="action" value="plus">+</button>
                             <button name="action" value="delete" style="float:right;">&cross;</button>
                         </form>
@@ -57,17 +49,12 @@
     </tr>
     <tr>
         <td style="text-align:right">
-            <!-- В text суммарная стоимость заказа -->
-            <b th:text="...'"></b>
+            <b th:text="${sum}"></b>
         </td>
     </tr>
     <tr>
         <td style="text-align:right">
-            <!-- 
-            	В action ссылка на страницу оформления заказа.
-            	В if true, если в корзине есть товары, false, если нет
-            -->
-            <form action="..." method="post" th:if="...">
+            <form th:action="@{/shop/order}" method="post" th:if="${products.size() > 0}">
                 <button>Купить</button>
             </form>
         </td>

@@ -72,7 +72,8 @@
                     </tr>
                     <tr>
                         <td>
-                            <form th:action="@{/shop/add/{id} (id = ${product.getId()})}" method="post">
+                            <form th:action="@{/shop/change/{id} (id = ${product.getId()})}" method="post">
+                                <input type="hidden" name="redirect" value="main"/>
                                 <button name="action" th:if="${product.getCountInCart() > 0}" value="minus">-</button>
                                 <span th:text="${product.getCountInCart()}"></span>
                                 <button name="action" value="plus">+</button>
