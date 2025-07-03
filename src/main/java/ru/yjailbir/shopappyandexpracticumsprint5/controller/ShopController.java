@@ -1,13 +1,9 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.service.ProductService;
 
@@ -18,18 +14,41 @@ import java.util.List;
 public class ShopController {
     private final ProductService productService;
 
-    @Value("${values.img_folder}")
-    private String imgFolder;
-
     @Autowired
     public ShopController(ProductService productService) {
         this.productService = productService;
     }
 
     @GetMapping
-    public String home(Model model) {
+    public String home(
+            @RequestParam(name = "pageSize", defaultValue = "5") int pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(name = "search", defaultValue = "") String search,
+            @RequestParam(name = "sort", defaultValue = "NO") String sort,
+            Model model
+    ) {
+        model.addAttribute("name", search);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("pageNumber", pageNumber);
+        model.addAttribute("sort", sort);
+        model.addAttribute("totalPages", productService.getProductsCount(pageSize));
+        model.addAttribute("products", productService.getProducts(pageSize, pageNumber, search, sort));
 
         return "main";
+    }
+
+    @GetMapping("/{id}")
+    public String getItem(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("product", productService.getProductById(id));
+
+        return "item";
+    }
+
+    @PostMapping("/add/{id}")
+    public String addItem(@PathVariable("id") Long id, @RequestParam("action") String action, Model model) {
+        productService.changeCountInCart(id, action);
+
+        return "redirect:/shop";
     }
 
     @PostMapping("/add-products")
@@ -38,6 +57,6 @@ public class ShopController {
             productService.save(product);
         }
 
-        return "redirect:/shop/main";
+        return "redirect:/shop";
     }
 }
