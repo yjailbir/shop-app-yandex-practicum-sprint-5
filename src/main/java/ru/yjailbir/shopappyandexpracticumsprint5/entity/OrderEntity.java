@@ -3,14 +3,14 @@ package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "purchases")
-public class PurchaseEntity {
+@Table(name = "orders")
+public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-    @Column(name = "purchase_id")
-    private String purchaseId;
+    @Column(name = "order_id")
+    private String orderId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
@@ -19,12 +19,12 @@ public class PurchaseEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
-    public PurchaseEntity() {
+    public OrderEntity() {
     }
 
-    public PurchaseEntity(Long id, String purchaseId, ProductEntity productEntity, Integer quantity) {
+    public OrderEntity(Long id, String orderId, ProductEntity productEntity, Integer quantity) {
         this.id = id;
-        this.purchaseId = purchaseId;
+        this.orderId = orderId;
         this.productEntity = productEntity;
         this.quantity = quantity;
     }
@@ -37,12 +37,12 @@ public class PurchaseEntity {
         this.id = id;
     }
 
-    public String getPurchaseId() {
-        return purchaseId;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setPurchaseId(String purchaseId) {
-        this.purchaseId = purchaseId;
+    public void setOrderId(String purchaseId) {
+        this.orderId = purchaseId;
     }
 
     public ProductEntity getProductEntity() {
