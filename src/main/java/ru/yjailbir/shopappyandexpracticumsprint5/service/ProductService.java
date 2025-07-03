@@ -16,12 +16,12 @@ import java.util.List;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
-    private final CartElementRepository elementRepository;
+    private final CartElementRepository cartElementRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, CartElementRepository elementRepository) {
+    public ProductService(ProductRepository productRepository, CartElementRepository cartElementRepository) {
         this.productRepository = productRepository;
-        this.elementRepository = elementRepository;
+        this.cartElementRepository = cartElementRepository;
     }
 
     public void save(ProductDto productDto) {
@@ -29,6 +29,7 @@ public class ProductService {
         productEntity.setName(productDto.getName());
         productEntity.setDescription(productDto.getDescription());
         productEntity.setPrice(productDto.getPrice());
+        productEntity.setImgName(productDto.getImgName());
 
         productRepository.save(productEntity);
     }
@@ -94,8 +95,24 @@ public class ProductService {
         }
     }
 
+    public void changeCountInCart(Long productId, String action) {
+        CartElementEntity cartElement = cartElementRepository.findByProductEntity_Id(productId)
+                .orElse(new CartElementEntity(
+                        productRepository.findById(productId).orElseThrow(),
+                        0
+                ));
+
+        if (action.equals("plus")) {
+            cartElement.incrementQuantity();
+        } else if (action.equals("minus")) {
+            cartElement.decrementQuantity();
+        }
+
+        cartElementRepository.save(cartElement);
+    }
+
     private ProductDto mapEntityToDto(ProductEntity productEntity) {
-        CartElementEntity cartElement = elementRepository.findById(productEntity.getId()).orElse(null);
+        CartElementEntity cartElement = cartElementRepository.findByProductEntity_Id(productEntity.getId()).orElse(null);
 
         return new ProductDto(
                 productEntity.getId(),

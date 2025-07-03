@@ -20,10 +20,17 @@ public class CartElementEntity {
     public CartElementEntity() {
     }
 
-    public CartElementEntity(Long id, ProductEntity productEntity, Integer quantity) {
-        this.id = id;
+    public CartElementEntity(ProductEntity productEntity, Integer quantity) {
         this.productEntity = productEntity;
         this.quantity = quantity;
+    }
+
+    public void incrementQuantity() {
+        this.quantity++;
+    }
+
+    public void decrementQuantity() {
+        this.quantity--;
     }
 
     public Long getId() {
