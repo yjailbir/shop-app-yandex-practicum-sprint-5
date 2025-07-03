@@ -1,16 +1,26 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.dto;
 
 public class ProductDto {
+    private Long id;
     private String name;
     private String description;
     private Integer price;
-    private String imgUrl;
+    private String imgName;
 
-    public ProductDto(String name, String description, Integer price, String imgUrl) {
+    public ProductDto(Long id, String name, String description, Integer price, String imgUrl) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.imgUrl = imgUrl;
+        this.imgName = imgUrl;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -37,11 +47,11 @@ public class ProductDto {
         this.price = price;
     }
 
-    public String getImgUrl() {
-        return imgUrl;
+    public String getImgName() {
+        return imgName;
     }
 
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
+    public void setImgName(String imgUrl) {
+        this.imgName = imgUrl;
     }
 }

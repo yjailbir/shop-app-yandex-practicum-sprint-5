@@ -20,26 +20,27 @@ public class ProductEntity {
     @Column(name = "price")
     private Integer price;
 
-    @Column(name = "img_url")
-    private String imgUrl;
+    @Column(name = "img_name")
+    private String imgName;
 
     public ProductEntity() {
     }
 
-    public ProductEntity(Long id, String name, String description, Integer price, String imgUrl) {
+    public ProductEntity(Long id, String name, String description, Integer price, String imgName) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.imgUrl = imgUrl;
+        this.imgName = imgName;
     }
 
     public ProductDto toDto() {
         return new ProductDto(
+                this.id,
                 this.name,
                 this.description,
                 this.price,
-                this.imgUrl
+                this.imgName
         );
     }
 
@@ -75,11 +76,11 @@ public class ProductEntity {
         this.price = price;
     }
 
-    public String getImgUrl() {
-        return imgUrl;
+    public String getImgName() {
+        return imgName;
     }
 
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
+    public void setImgName(String imgUrl) {
+        this.imgName = imgUrl;
     }
 }
