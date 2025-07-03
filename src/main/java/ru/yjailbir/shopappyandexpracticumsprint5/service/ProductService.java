@@ -5,7 +5,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
+import ru.yjailbir.shopappyandexpracticumsprint5.entity.CartElementEntity;
 import ru.yjailbir.shopappyandexpracticumsprint5.entity.ProductEntity;
+import ru.yjailbir.shopappyandexpracticumsprint5.repository.CartElementRepository;
 import ru.yjailbir.shopappyandexpracticumsprint5.repository.ProductRepository;
 
 import java.util.ArrayList;
@@ -14,10 +16,12 @@ import java.util.List;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final CartElementRepository elementRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CartElementRepository elementRepository) {
         this.productRepository = productRepository;
+        this.elementRepository = elementRepository;
     }
 
     public void save(ProductDto productDto) {
@@ -73,10 +77,33 @@ public class ProductService {
                 rowIndex++;
                 continue;
             }
-            result.get(rowIndex).add(productEntity.toDto());
+            result.get(rowIndex).add(mapEntityToDto(productEntity));
             elemNumber++;
         }
 
         return result;
+    }
+
+    public ProductDto getProductById(Long id) {
+        ProductEntity productEntity = productRepository.findById(id).orElse(null);
+
+        if (productEntity != null) {
+            return mapEntityToDto(productEntity);
+        } else {
+            return null;
+        }
+    }
+
+    private ProductDto mapEntityToDto(ProductEntity productEntity) {
+        CartElementEntity cartElement = elementRepository.findById(productEntity.getId()).orElse(null);
+
+        return new ProductDto(
+                productEntity.getId(),
+                productEntity.getName(),
+                productEntity.getDescription(),
+                productEntity.getPrice(),
+                productEntity.getImgName(),
+                cartElement == null ? 0 : cartElement.getQuantity()
+        );
     }
 }

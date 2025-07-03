@@ -34,16 +34,6 @@ public class ProductEntity {
         this.imgName = imgName;
     }
 
-    public ProductDto toDto() {
-        return new ProductDto(
-                this.id,
-                this.name,
-                this.description,
-                this.price,
-                this.imgName
-        );
-    }
-
     public Long getId() {
         return id;
     }
