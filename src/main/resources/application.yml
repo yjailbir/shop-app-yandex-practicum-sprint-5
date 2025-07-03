@@ -10,3 +10,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+values:
+  img_folder: F:\Images
