@@ -48,20 +48,21 @@ public class ProductService {
         return count % onePageProductsCount == 0 ? count / onePageProductsCount : count / onePageProductsCount + 1;
     }
 
-    public List<List<ProductDto>> getProducts(int onePageProductsCount, int offset, String search, String sort) {
+    public List<ProductDto> getProducts(int onePageProductsCount, int offset, String search, String sort) {
+
         List<ProductEntity> entities = new ArrayList<>();
-        List<List<ProductDto>> result = new ArrayList<>();
+        List<ProductDto> result = new ArrayList<>();
 
         if (search != null && !search.isEmpty()) {
             switch (sort) {
                 case "NO" ->
-                        entities = productRepository.findAllByName(search, PageRequest.of(offset, onePageProductsCount));
+                        entities = productRepository.findAllByName(search, PageRequest.of(offset, onePageProductsCount)).getContent();
                 case "ALPHA" -> entities = productRepository.findAllByName(
                         search, PageRequest.of(offset, onePageProductsCount, Sort.by("name").ascending())
-                );
+                ).getContent();
                 case "PRICE" -> entities = productRepository.findAllByName(
                         search, PageRequest.of(offset, onePageProductsCount, Sort.by("price").ascending())
-                );
+                ).getContent();
             }
         } else {
             switch (sort) {
@@ -76,27 +77,11 @@ public class ProductService {
             }
         }
 
-        int rowIndex = 0;
-        int elemNumber = 0;
-        for (ProductEntity productEntity : entities) {
-            if (elemNumber == 0) {
-                result.add(new ArrayList<>());
-            } else if (elemNumber == onePageProductsCount) {
-                elemNumber = 0;
-                rowIndex++;
-                continue;
-            }
+        entities.forEach(productEntity -> {
             CartElementEntity cartElement = cartElementRepository
                     .findByProductEntity_Id(productEntity.getId()).orElse(null);
-
-            result.get(rowIndex).add(
-                    mapEntityToDto(
-                            productEntity,
-                            cartElement == null ? 0 : cartElement.getQuantity()
-                    )
-            );
-            elemNumber++;
-        }
+            result.add(mapEntityToDto(productEntity, cartElement == null ? 0 : cartElement.getQuantity()));
+        });
 
         return result;
     }
@@ -136,7 +121,7 @@ public class ProductService {
         List<ProductDto> result = new ArrayList<>();
 
         entities.forEach(productEntity -> {
-           Integer count = cartElementRepository.findByProductEntity_Id(productEntity.getId()).orElseThrow().getQuantity();
+            Integer count = cartElementRepository.findByProductEntity_Id(productEntity.getId()).orElseThrow().getQuantity();
             result.add(mapEntityToDto(productEntity, count));
         });
 
@@ -148,10 +133,10 @@ public class ProductService {
     }
 
     public Integer getOrderSum(Long orderId) {
-       return orderRepository.findById(orderId).orElseThrow().getItems().stream().mapToInt(OrderItemEntity::getSum).sum();
+        return orderRepository.findById(orderId).orElseThrow().getItems().stream().mapToInt(OrderItemEntity::getSum).sum();
     }
 
-    public List<OrderEntity> getAllOrders(){
+    public List<OrderEntity> getAllOrders() {
         return orderRepository.findAll();
     }
 

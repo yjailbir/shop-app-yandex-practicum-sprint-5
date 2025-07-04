@@ -47,8 +47,8 @@
                 </form>
             </td>
         </tr>
-        <tr th:each="row: ${products}">
-            <td th:each="product: ${row}">
+        <tr th:each="product: ${products}">
+            <td>
                 <table>
                     <tr>
                         <td>
@@ -81,7 +81,6 @@
                         </td>
                     </tr>
                 </table>
-                <br>
             </td>
         </tr>
     </table>
