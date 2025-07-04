@@ -40,9 +40,9 @@
                         </select>
                     </p>
                     <p>
-                        <button th:if="${pageNumber > 1}" name="pageNumber" th:value="${pageNumber - 1}">&lt;</button>
-                        <span th:text="'Страница' +  ${pageNumber}"></span>
-                        <button th:if="${pageNumber < totalPages}" name="pageNumber" th:value="${pageNumber + 1}">&gt;</button>
+                        <button th:if="${pageNumber > 0}" name="pageNumber" th:value="${pageNumber - 1}">&lt;</button>
+                        <span th:text="'Страница ' +  ${pageNumber + 1}"></span>
+                        <button th:if="${pageNumber < totalPages - 1}" name="pageNumber" th:value="${pageNumber + 1}">&gt;</button>
                     </p>
                 </form>
             </td>

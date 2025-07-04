@@ -12,5 +12,5 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     Optional<ProductEntity> findByName(String name);
-    Page<ProductEntity> findAllByName(String name, Pageable pageable);
+    Page<ProductEntity> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 }

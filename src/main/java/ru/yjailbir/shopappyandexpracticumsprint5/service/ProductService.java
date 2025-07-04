@@ -48,7 +48,7 @@ public class ProductService {
         return count % onePageProductsCount == 0 ? count / onePageProductsCount : count / onePageProductsCount + 1;
     }
 
-    public List<ProductDto> getProducts(int onePageProductsCount, int offset, String search, String sort) {
+    public List<ProductDto> getProducts(int pageSize, int pageNumber, String search, String sort) {
 
         List<ProductEntity> entities = new ArrayList<>();
         List<ProductDto> result = new ArrayList<>();
@@ -56,23 +56,23 @@ public class ProductService {
         if (search != null && !search.isEmpty()) {
             switch (sort) {
                 case "NO" ->
-                        entities = productRepository.findAllByName(search, PageRequest.of(offset, onePageProductsCount)).getContent();
-                case "ALPHA" -> entities = productRepository.findAllByName(
-                        search, PageRequest.of(offset, onePageProductsCount, Sort.by("name").ascending())
+                        entities = productRepository.findAllByNameContainingIgnoreCase(search, PageRequest.of(pageNumber, pageSize)).getContent();
+                case "ALPHA" -> entities = productRepository.findAllByNameContainingIgnoreCase(
+                        search, PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending())
                 ).getContent();
-                case "PRICE" -> entities = productRepository.findAllByName(
-                        search, PageRequest.of(offset, onePageProductsCount, Sort.by("price").ascending())
+                case "PRICE" -> entities = productRepository.findAllByNameContainingIgnoreCase(
+                        search, PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending())
                 ).getContent();
             }
         } else {
             switch (sort) {
                 case "NO" ->
-                        entities = productRepository.findAll(PageRequest.of(offset, onePageProductsCount)).getContent();
+                        entities = productRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent();
                 case "ALPHA" -> entities = productRepository.findAll(
-                        PageRequest.of(offset, onePageProductsCount, Sort.by("name").ascending())
+                        PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending())
                 ).getContent();
                 case "PRICE" -> entities = productRepository.findAll(
-                        PageRequest.of(offset, onePageProductsCount, Sort.by("price").ascending())
+                        PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending())
                 ).getContent();
             }
         }
@@ -130,10 +130,6 @@ public class ProductService {
 
     public Integer getSumFromItemsList(List<ProductDto> products) {
         return products.stream().mapToInt(x -> (x.getPrice() * x.getCount())).sum();
-    }
-
-    public Integer getOrderSum(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow().getItems().stream().mapToInt(OrderItemEntity::getSum).sum();
     }
 
     public List<OrderEntity> getAllOrders() {

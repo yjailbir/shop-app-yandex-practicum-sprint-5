@@ -23,7 +23,7 @@ public class ShopController {
     @GetMapping
     public String home(
             @RequestParam(name = "pageSize", defaultValue = "5") int pageSize,
-            @RequestParam(name = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(name = "search", defaultValue = "") String search,
             @RequestParam(name = "sort", defaultValue = "NO") String sort,
             Model model
