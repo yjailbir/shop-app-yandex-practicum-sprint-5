@@ -29,6 +29,10 @@ public class OrderItemEntity {
         this.quantity = quantity;
     }
 
+    public Integer getSum() {
+        return quantity * product.getPrice();
+    }
+
     public Long getId() {
         return id;
     }

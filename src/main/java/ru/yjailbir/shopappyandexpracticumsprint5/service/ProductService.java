@@ -147,6 +147,14 @@ public class ProductService {
         return products.stream().mapToInt(x -> (x.getPrice() * x.getCount())).sum();
     }
 
+    public Integer getOrderSum(Long orderId) {
+       return orderRepository.findById(orderId).orElseThrow().getItems().stream().mapToInt(OrderItemEntity::getSum).sum();
+    }
+
+    public List<OrderEntity> getAllOrders(){
+        return orderRepository.findAll();
+    }
+
     public Long getMaxOrderId() {
         return orderRepository.getMaxOrderId().orElse(0L);
     }

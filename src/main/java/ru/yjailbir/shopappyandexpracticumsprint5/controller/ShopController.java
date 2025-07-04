@@ -86,6 +86,13 @@ public class ShopController {
         return "order";
     }
 
+    @GetMapping("/orders")
+    public String orders(Model model) {
+        model.addAttribute("orders", productService.getAllOrders());
+
+        return "orders";
+    }
+
     @PostMapping("/add-products")
     public String addProducts(@RequestBody List<ProductDto> products) {
         for (ProductDto product : products) {

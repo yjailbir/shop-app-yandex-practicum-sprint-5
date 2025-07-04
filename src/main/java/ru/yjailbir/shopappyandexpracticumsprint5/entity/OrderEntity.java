@@ -19,6 +19,10 @@ public class OrderEntity {
     public OrderEntity() {
     }
 
+    public Integer getSum() {
+       return items.stream().mapToInt(OrderItemEntity::getSum).sum();
+    }
+
     public Long getId() {
         return id;
     }
