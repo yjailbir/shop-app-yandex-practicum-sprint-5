@@ -47,8 +47,8 @@ public class ShopController {
 
     @PostMapping("/change/{id}")
     public String addItem(
-            @PathVariable("id") Long id
-            , @RequestParam("action") String action,
+            @PathVariable("id") Long id,
+            @RequestParam("action") String action,
             @RequestParam("redirect") String redirect
     ) {
         productService.changeCountInCart(id, action);
@@ -69,6 +69,21 @@ public class ShopController {
         model.addAttribute("sum", productService.getSumFromItemsList(products));
 
         return "cart";
+    }
+
+    @PostMapping("/order")
+    public String makeOrder() {
+        return "redirect:/shop/orders/" + productService.makeOrder();
+    }
+
+    @GetMapping("/orders/{id}")
+    public String order(@PathVariable("id") Long id, Model model) {
+        List<ProductDto> products = productService.getOrderById(id);
+        model.addAttribute("orderId", id);
+        model.addAttribute("products", products);
+        model.addAttribute("sum", productService.getSumFromItemsList(products));
+
+        return "order";
     }
 
     @PostMapping("/add-products")

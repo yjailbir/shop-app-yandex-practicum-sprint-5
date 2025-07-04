@@ -1,7 +1,6 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
 import jakarta.persistence.*;
-import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
 
 @Entity
 @Table(name = "products")
@@ -24,14 +23,6 @@ public class ProductEntity {
     private String imgName;
 
     public ProductEntity() {
-    }
-
-    public ProductEntity(Long id, String name, String description, Integer price, String imgName) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.imgName = imgName;
     }
 
     public Long getId() {

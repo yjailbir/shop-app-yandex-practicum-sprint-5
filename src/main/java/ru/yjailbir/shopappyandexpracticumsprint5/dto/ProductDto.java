@@ -6,15 +6,15 @@ public class ProductDto {
     private String description;
     private Integer price;
     private String imgName;
-    private Integer countInCart;
+    private Integer count;
 
-    public ProductDto(Long id, String name, String description, Integer price, String imgName, Integer countInCart) {
+    public ProductDto(Long id, String name, String description, Integer price, String imgName, Integer count) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.imgName = imgName;
-        this.countInCart = countInCart;
+        this.count = count;
     }
 
     public Long getId() {
@@ -57,11 +57,11 @@ public class ProductDto {
         this.imgName = imgUrl;
     }
 
-    public Integer getCountInCart() {
-        return countInCart;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setCountInCart(Integer countInCart) {
-        this.countInCart = countInCart;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

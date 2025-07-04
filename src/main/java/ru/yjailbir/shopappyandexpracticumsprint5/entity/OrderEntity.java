@@ -2,6 +2,9 @@ package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "orders")
 public class OrderEntity {
@@ -9,24 +12,11 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-    @Column(name = "order_id")
-    private String orderId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private ProductEntity productEntity;
-
-    @Column(name = "quantity")
-    private Integer quantity;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItemEntity> items = new ArrayList<>();
 
     public OrderEntity() {
-    }
-
-    public OrderEntity(Long id, String orderId, ProductEntity productEntity, Integer quantity) {
-        this.id = id;
-        this.orderId = orderId;
-        this.productEntity = productEntity;
-        this.quantity = quantity;
     }
 
     public Long getId() {
@@ -37,27 +27,11 @@ public class OrderEntity {
         this.id = id;
     }
 
-    public String getOrderId() {
-        return orderId;
+    public List<OrderItemEntity> getItems() {
+        return items;
     }
 
-    public void setOrderId(String purchaseId) {
-        this.orderId = purchaseId;
-    }
-
-    public ProductEntity getProductEntity() {
-        return productEntity;
-    }
-
-    public void setProductEntity(ProductEntity productEntity) {
-        this.productEntity = productEntity;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setItems(List<OrderItemEntity> items) {
+        this.items = items;
     }
 }
