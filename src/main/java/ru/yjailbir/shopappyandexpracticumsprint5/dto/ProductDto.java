@@ -8,6 +8,8 @@ public class ProductDto {
     private String imgName;
     private Integer count;
 
+    public ProductDto() {}
+
     public ProductDto(Long id, String name, String description, Integer price, String imgName, Integer count) {
         this.id = id;
         this.name = name;
