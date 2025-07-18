@@ -4,48 +4,57 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.entity.CartElementEntity;
 import ru.yjailbir.shopappyandexpracticumsprint5.entity.OrderEntity;
 import ru.yjailbir.shopappyandexpracticumsprint5.entity.OrderItemEntity;
 import ru.yjailbir.shopappyandexpracticumsprint5.entity.ProductEntity;
-import ru.yjailbir.shopappyandexpracticumsprint5.repository.CartElementRepository;
-import ru.yjailbir.shopappyandexpracticumsprint5.repository.ProductRepository;
-import ru.yjailbir.shopappyandexpracticumsprint5.repository.OrderRepository;
+import ru.yjailbir.shopappyandexpracticumsprint5.repository.CartElementCrudRepository;
+import ru.yjailbir.shopappyandexpracticumsprint5.repository.OrderCrudRepository;
+import ru.yjailbir.shopappyandexpracticumsprint5.repository.ProductCrudRepository;
+import ru.yjailbir.shopappyandexpracticumsprint5.repository.CustomRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ProductService {
-    private final ProductRepository productRepository;
-    private final CartElementRepository cartElementRepository;
-    private final OrderRepository orderRepository;
+    private final ProductCrudRepository productCrudRepository;
+    private final CartElementCrudRepository cartElementCrudRepository;
+    private final CustomRepository customRepository;
+    private final OrderCrudRepository orderCrudRepository;
 
     @Autowired
     public ProductService(
-            ProductRepository productRepository,
-            CartElementRepository cartElementRepository,
-            OrderRepository orderRepository) {
-        this.productRepository = productRepository;
-        this.cartElementRepository = cartElementRepository;
-        this.orderRepository = orderRepository;
+            ProductCrudRepository productCrudRepository,
+            CartElementCrudRepository cartElementCrudRepository,
+            CustomRepository customRepository,
+            OrderCrudRepository orderCrudRepository
+    ) {
+        this.productCrudRepository = productCrudRepository;
+        this.cartElementCrudRepository = cartElementCrudRepository;
+        this.customRepository = customRepository;
+        this.orderCrudRepository = orderCrudRepository;
     }
 
     public void save(ProductDto productDto) {
-        ProductEntity productEntity = productRepository.findByName(productDto.getName()).orElse(new ProductEntity());
+        ProductEntity productEntity = productCrudRepository.findByName(productDto.getName()).orElse(new ProductEntity());
         productEntity.setName(productDto.getName());
         productEntity.setDescription(productDto.getDescription());
         productEntity.setPrice(productDto.getPrice());
         productEntity.setImgName(productDto.getImgName());
 
-        productRepository.save(productEntity);
+        productCrudRepository.save(productEntity);
     }
 
-    public long getProductsCount(int onePageProductsCount) {
-        long count = productRepository.count();
-
-        return count % onePageProductsCount == 0 ? count / onePageProductsCount : count / onePageProductsCount + 1;
+    public Mono<Long> getProductsCount(int onePageProductsCount) {
+        return productCrudRepository
+                .count()
+                .map(count -> (count % onePageProductsCount == 0 ? count / onePageProductsCount : count / onePageProductsCount + 1));
     }
 
     public List<ProductDto> getProducts(int pageSize, int pageNumber, String search, String sort) {
@@ -56,29 +65,29 @@ public class ProductService {
         if (search != null && !search.isEmpty()) {
             switch (sort) {
                 case "NO" ->
-                        entities = productRepository.findAllByNameContainingIgnoreCase(search, PageRequest.of(pageNumber, pageSize)).getContent();
-                case "ALPHA" -> entities = productRepository.findAllByNameContainingIgnoreCase(
+                        entities = customRepository.findAllByNameContainingIgnoreCase(search, PageRequest.of(pageNumber, pageSize)).getContent();
+                case "ALPHA" -> entities = productCrudRepository.findAllByNameContainingIgnoreCase(
                         search, PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending())
                 ).getContent();
-                case "PRICE" -> entities = productRepository.findAllByNameContainingIgnoreCase(
+                case "PRICE" -> entities = productCrudRepository.findAllByNameContainingIgnoreCase(
                         search, PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending())
                 ).getContent();
             }
         } else {
             switch (sort) {
                 case "NO" ->
-                        entities = productRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent();
-                case "ALPHA" -> entities = productRepository.findAll(
+                        entities = productCrudRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent();
+                case "ALPHA" -> entities = productCrudRepository.findAll(
                         PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending())
                 ).getContent();
-                case "PRICE" -> entities = productRepository.findAll(
+                case "PRICE" -> entities = productCrudRepository.findAll(
                         PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending())
                 ).getContent();
             }
         }
 
         entities.forEach(productEntity -> {
-            CartElementEntity cartElement = cartElementRepository
+            CartElementEntity cartElement = cartElementCrudRepository
                     .findByProductEntity_Id(productEntity.getId()).orElse(null);
             result.add(mapEntityToDto(productEntity, cartElement == null ? 0 : cartElement.getQuantity()));
         });
@@ -86,89 +95,85 @@ public class ProductService {
         return result;
     }
 
-    public ProductDto getProductById(Long id) {
-        ProductEntity productEntity = productRepository.findById(id).orElse(null);
-
-        if (productEntity != null) {
-            return mapEntityToDto(productEntity, null);
-        } else {
-            return null;
-        }
+    public Mono<ProductDto> getProductById(Long id) {
+        return productCrudRepository.findById(id).mapNotNull(productEntity -> mapEntityToDto(productEntity, null));
     }
 
-    public void changeCountInCart(Long productId, String action) {
-        CartElementEntity cartElement = cartElementRepository.findByProductEntity_Id(productId)
-                .orElse(new CartElementEntity(
-                        productRepository.findById(productId).orElseThrow(),
-                        0
-                ));
+    public Mono<Void> changeCountInCart(Long productId, String action) {
 
-        switch (action) {
-            case "plus" -> {
-                cartElement.incrementQuantity();
-                cartElementRepository.save(cartElement);
+        Mono<CartElementEntity> existingCartElementMono = cartElementCrudRepository.findByProductEntity_Id(productId);
+
+        Mono<CartElementEntity> cartElementMono = existingCartElementMono.switchIfEmpty(
+                productCrudRepository.findById(productId)
+                        .map(product -> new CartElementEntity(product, 0))
+        );
+
+        return cartElementMono.flatMap(cartElement -> {
+            switch (action) {
+                case "plus" -> {
+                    cartElement.incrementQuantity();
+                    return cartElementCrudRepository.save(cartElement).then();
+                }
+                case "minus" -> {
+                    cartElement.decrementQuantity();
+                    return cartElementCrudRepository.save(cartElement).then();
+                }
+                case "delete" -> {
+                    return cartElementCrudRepository.delete(cartElement);
+                }
+                default -> {
+                    return Mono.error(new IllegalArgumentException("Unknown action: " + action));
+                }
             }
-            case "minus" -> {
-                cartElement.decrementQuantity();
-                cartElementRepository.save(cartElement);
-            }
-            case "delete" -> cartElementRepository.delete(cartElement);
-        }
-    }
-
-    public List<ProductDto> getCart() {
-        List<ProductEntity> entities = cartElementRepository.findAll().stream().map(CartElementEntity::getProductEntity).toList();
-        List<ProductDto> result = new ArrayList<>();
-
-        entities.forEach(productEntity -> {
-            Integer count = cartElementRepository.findByProductEntity_Id(productEntity.getId()).orElseThrow().getQuantity();
-            result.add(mapEntityToDto(productEntity, count));
         });
+    }
 
-        return result;
+    public Flux<ProductDto> getCart() {
+        return cartElementCrudRepository.findAll()
+                .publishOn(Schedulers.boundedElastic())
+                .map(cartElement -> {
+                    ProductEntity product = cartElement.getProductEntity();
+                    int quantity = Objects.requireNonNull(
+                            cartElementCrudRepository.findByProductEntity_Id(product.getId()).block()
+                    ).getQuantity();
+                    return mapEntityToDto(product, quantity);
+                });
     }
 
     public Integer getSumFromItemsList(List<ProductDto> products) {
         return products.stream().mapToInt(x -> (x.getPrice() * x.getCount())).sum();
     }
 
-    public List<OrderEntity> getAllOrders() {
-        return orderRepository.findAll();
+    public Flux<OrderEntity> getAllOrders() {
+        return orderCrudRepository.findAll();
     }
 
-    public Long getMaxOrderId() {
-        return orderRepository.getMaxOrderId().orElse(0L);
+    public Mono<Long> getMaxOrderId() {
+        return customRepository.getMaxOrderId();
     }
 
-    public Long makeOrder() {
-        List<ProductDto> products = getCart();
+    public Mono<Long> makeOrder() {
         OrderEntity orderEntity = new OrderEntity();
-        List<OrderItemEntity> orderItems = new ArrayList<>();
 
-        products.forEach(
-                productDto -> orderItems.add(
-                        new OrderItemEntity(
-                                orderEntity,
-                                productRepository.findByName(productDto.getName()).orElseThrow(),
-                                productDto.getCount()
-                        )
+        return getCart()
+                .flatMap(productDto ->
+                        productCrudRepository.findByName(productDto.getName())
+                                .map(productEntity -> new OrderItemEntity(orderEntity, productEntity, productDto.getCount()))
                 )
-        );
-
-        orderEntity.setItems(orderItems);
-        orderRepository.save(orderEntity);
-        cartElementRepository.deleteAll();
-
-        return getMaxOrderId();
+                .collectList()
+                .flatMap(orderItems -> {
+                    orderEntity.setItems(orderItems);
+                    return orderCrudRepository.save(orderEntity);
+                })
+                .then(cartElementCrudRepository.deleteAll())
+                .then(getMaxOrderId());
     }
 
-    public List<ProductDto> getOrderById(Long orderId) {
-        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-        List<ProductDto> result = new ArrayList<>();
-
-        orderEntity.getItems().forEach(item -> result.add(mapEntityToDto(item.getProduct(), item.getQuantity())));
-
-        return result;
+    public Flux<ProductDto> getOrderById(Long orderId) {
+        return orderCrudRepository.findById(orderId)
+                .switchIfEmpty(Mono.error(new RuntimeException("Order not found: " + orderId)))
+                .flatMapMany(orderEntity -> Flux.fromIterable(orderEntity.getItems()))
+                .map(item -> mapEntityToDto(item.getProduct(), item.getQuantity()));
     }
 
     private ProductDto mapEntityToDto(ProductEntity productEntity, Integer count) {

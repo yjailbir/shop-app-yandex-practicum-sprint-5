@@ -7,6 +7,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yjailbir.shopappyandexpracticumsprint5.entity.ProductEntity;
 
+import java.util.List;
+
 @Repository
 public class CustomRepositoryImpl implements CustomRepository {
     private final R2dbcEntityTemplate template;
@@ -26,7 +28,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     }
 
     @Override
-    public Flux<ProductEntity> findByNameContainingIgnoreCasePaged(String name, int offset, int limit) {
+    public Mono<List<ProductEntity>> findByNameContainingIgnoreCasePaged(String name, int offset, int limit) {
         return template
                 .getDatabaseClient()
                 .sql("""
@@ -47,6 +49,22 @@ public class CustomRepositoryImpl implements CustomRepository {
                                 row.get("img_name", String.class)
                         )
                 )
-                .all();
+                .all()
+                .collectList();
+    }
+
+    @Override
+    public Mono<List<ProductEntity>> findByNameContainingIgnoreCasePagedSorted(String name, int offset, int limit, String sortField) {
+        return null;
+    }
+
+    @Override
+    public Mono<List<ProductEntity>> findPaged(int offset, int limit) {
+        return null;
+    }
+
+    @Override
+    public Mono<List<ProductEntity>> findPagedSorted(int offset, int limit, String sortField) {
+        return null;
     }
 }
