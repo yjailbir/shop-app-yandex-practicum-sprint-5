@@ -1,8 +1,6 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,7 +15,6 @@ import ru.yjailbir.shopappyandexpracticumsprint5.repository.OrderCrudRepository;
 import ru.yjailbir.shopappyandexpracticumsprint5.repository.ProductCrudRepository;
 import ru.yjailbir.shopappyandexpracticumsprint5.repository.CustomRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,14 +38,18 @@ public class ProductService {
         this.orderCrudRepository = orderCrudRepository;
     }
 
-    public void save(ProductDto productDto) {
-        ProductEntity productEntity = productCrudRepository.findByName(productDto.getName()).orElse(new ProductEntity());
-        productEntity.setName(productDto.getName());
-        productEntity.setDescription(productDto.getDescription());
-        productEntity.setPrice(productDto.getPrice());
-        productEntity.setImgName(productDto.getImgName());
-
-        productCrudRepository.save(productEntity);
+    public Mono<Void> save(ProductDto productDto) {
+        return productCrudRepository.findByName(productDto.getName())
+                .defaultIfEmpty(new ProductEntity())
+                .map(productEntity -> {
+                    productEntity.setName(productDto.getName());
+                    productEntity.setDescription(productDto.getDescription());
+                    productEntity.setPrice(productDto.getPrice());
+                    productEntity.setImgName(productDto.getImgName());
+                    return productEntity;
+                })
+                .flatMap(productCrudRepository::save)
+                .then();
     }
 
     public Mono<Long> getProductsCount(int onePageProductsCount) {
@@ -57,42 +58,36 @@ public class ProductService {
                 .map(count -> (count % onePageProductsCount == 0 ? count / onePageProductsCount : count / onePageProductsCount + 1));
     }
 
-    public List<ProductDto> getProducts(int pageSize, int pageNumber, String search, String sort) {
+    public Flux<ProductDto> getProducts(int pageSize, int pageNumber, String search, String sort) {
+        int offset = pageNumber * pageSize;
+        String sortField = switch (sort) {
+            case "ALPHA" -> "name";
+            case "PRICE" -> "price";
+            default -> null;
+        };
 
-        List<ProductEntity> entities = new ArrayList<>();
-        List<ProductDto> result = new ArrayList<>();
+        Mono<List<ProductEntity>> productsMono;
 
         if (search != null && !search.isEmpty()) {
-            switch (sort) {
-                case "NO" ->
-                        entities = customRepository.findAllByNameContainingIgnoreCase(search, PageRequest.of(pageNumber, pageSize)).getContent();
-                case "ALPHA" -> entities = productCrudRepository.findAllByNameContainingIgnoreCase(
-                        search, PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending())
-                ).getContent();
-                case "PRICE" -> entities = productCrudRepository.findAllByNameContainingIgnoreCase(
-                        search, PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending())
-                ).getContent();
+            if ("NO".equals(sort)) {
+                productsMono = customRepository.findByNameContainingIgnoreCasePaged(search, offset, pageSize);
+            } else {
+                productsMono = customRepository.findByNameContainingIgnoreCasePagedSorted(search, offset, pageSize, sortField);
             }
         } else {
-            switch (sort) {
-                case "NO" ->
-                        entities = productCrudRepository.findAll(PageRequest.of(pageNumber, pageSize)).getContent();
-                case "ALPHA" -> entities = productCrudRepository.findAll(
-                        PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending())
-                ).getContent();
-                case "PRICE" -> entities = productCrudRepository.findAll(
-                        PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending())
-                ).getContent();
+            if ("NO".equals(sort)) {
+                productsMono = customRepository.findPaged(offset, pageSize);
+            } else {
+                productsMono = customRepository.findPagedSorted(offset, pageSize, sortField);
             }
         }
 
-        entities.forEach(productEntity -> {
-            CartElementEntity cartElement = cartElementCrudRepository
-                    .findByProductEntity_Id(productEntity.getId()).orElse(null);
-            result.add(mapEntityToDto(productEntity, cartElement == null ? 0 : cartElement.getQuantity()));
-        });
-
-        return result;
+        return productsMono.flatMapMany(Flux::fromIterable)
+                .flatMap(product ->
+                        cartElementCrudRepository.findByProductEntity_Id(product.getId())
+                                .defaultIfEmpty(new CartElementEntity(product, 0))
+                                .map(cartElement -> mapEntityToDto(product, cartElement.getQuantity()))
+                );
     }
 
     public Mono<ProductDto> getProductById(Long id) {

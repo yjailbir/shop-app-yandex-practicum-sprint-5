@@ -1,9 +1,9 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.repository;
 
+import io.r2dbc.spi.Readable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yjailbir.shopappyandexpracticumsprint5.entity.ProductEntity;
 
@@ -40,31 +40,69 @@ public class CustomRepositoryImpl implements CustomRepository {
                 .bind("name", name)
                 .bind("limit", limit)
                 .bind("offset", offset)
-                .map(
-                        row -> new ProductEntity(
-                                row.get("id", Long.class),
-                                row.get("name", String.class),
-                                row.get("description", String.class),
-                                row.get("price", Integer.class),
-                                row.get("img_name", String.class)
-                        )
-                )
+                .map(this::mapRowToProductEntity)
                 .all()
                 .collectList();
     }
 
     @Override
     public Mono<List<ProductEntity>> findByNameContainingIgnoreCasePagedSorted(String name, int offset, int limit, String sortField) {
-        return null;
+        return template
+                .getDatabaseClient()
+                .sql("""
+                        SELECT * FROM products
+                          WHERE LOWER(name) LIKE LOWER(CONCAT('%%', :name, '%%'))
+                          ORDER BY :sort_field
+                          LIMIT :limit OFFSET :offset
+                        """)
+                .bind("name", name)
+                .bind("sort_field", sortField)
+                .bind("limit", limit)
+                .bind("offset", offset)
+                .map(this::mapRowToProductEntity)
+                .all()
+                .collectList();
     }
 
     @Override
     public Mono<List<ProductEntity>> findPaged(int offset, int limit) {
-        return null;
+        return template
+                .getDatabaseClient()
+                .sql("""
+                        SELECT * FROM products
+                          LIMIT :limit OFFSET :offset
+                        """)
+                .bind("limit", limit)
+                .bind("offset", offset)
+                .map(this::mapRowToProductEntity)
+                .all()
+                .collectList();
     }
 
     @Override
     public Mono<List<ProductEntity>> findPagedSorted(int offset, int limit, String sortField) {
-        return null;
+        return template
+                .getDatabaseClient()
+                .sql("""
+                        SELECT * FROM products
+                          ORDER BY :sort_field
+                          LIMIT :limit OFFSET :offset
+                        """)
+                .bind("sort_field", sortField)
+                .bind("limit", limit)
+                .bind("offset", offset)
+                .map(this::mapRowToProductEntity)
+                .all()
+                .collectList();
+    }
+
+    private ProductEntity mapRowToProductEntity(Readable row) {
+        return new ProductEntity(
+                row.get("id", Long.class),
+                row.get("name", String.class),
+                row.get("description", String.class),
+                row.get("price", Integer.class),
+                row.get("img_name", String.class)
+        );
     }
 }
