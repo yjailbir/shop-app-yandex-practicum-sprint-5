@@ -1,25 +1,25 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Table(name = "products")
+@Table("products")
 public class ProductEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column("id")
     private Long id;
 
-    @Column(name = "name")
+    @Column("name")
     private String name;
 
-    @Column(name = "description")
+    @Column("description")
     private String description;
 
-    @Column(name = "price")
+    @Column("price")
     private Integer price;
 
-    @Column(name = "img_name")
+    @Column("img_name")
     private String imgName;
 
     public ProductEntity() {

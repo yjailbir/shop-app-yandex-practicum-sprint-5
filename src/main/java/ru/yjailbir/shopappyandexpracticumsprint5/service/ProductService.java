@@ -135,8 +135,8 @@ public class ProductService {
                 });
     }
 
-    public Integer getSumFromItemsList(List<ProductDto> products) {
-        return products.stream().mapToInt(x -> (x.getPrice() * x.getCount())).sum();
+    public Mono<Integer> getSumFromItemsList(List<ProductDto> products) {
+        return Mono.just(products.stream().mapToInt(x -> (x.getPrice() * x.getCount())).sum());
     }
 
     public Flux<OrderEntity> getAllOrders() {

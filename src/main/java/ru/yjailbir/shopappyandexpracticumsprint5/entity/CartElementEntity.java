@@ -1,20 +1,20 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
 @Table(name = "cart")
 public class CartElementEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column("id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @Column("product_id")
+    private Long productId;
     private ProductEntity productEntity;
 
-    @Column(name = "quantity")
+    @Column("quantity")
     private Integer quantity;
 
     public CartElementEntity() {
@@ -55,5 +55,13 @@ public class CartElementEntity {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public Long geProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 }

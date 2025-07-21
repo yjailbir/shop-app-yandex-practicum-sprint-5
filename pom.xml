@@ -42,7 +42,6 @@
 			<groupId>io.r2dbc</groupId>
 			<artifactId>r2dbc-h2</artifactId>
 			<version>1.0.0.RELEASE</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -51,9 +50,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>io.r2dbc</groupId>
-			<artifactId>r2dbc-h2</artifactId>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
