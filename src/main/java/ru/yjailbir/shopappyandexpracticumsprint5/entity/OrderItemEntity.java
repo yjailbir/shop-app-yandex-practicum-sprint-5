@@ -1,6 +1,7 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -11,10 +12,14 @@ public class OrderItemEntity {
 
     @Column("order_id")
     private Long orderId;
+
+    @Transient
     private OrderEntity order;
 
     @Column("product_id")
     private Long productId;
+
+    @Transient
     private ProductEntity product;
 
     @Column("quantity")
@@ -23,9 +28,9 @@ public class OrderItemEntity {
     public OrderItemEntity() {
     }
 
-    public OrderItemEntity(OrderEntity order, ProductEntity product, Integer quantity) {
-        this.order = order;
-        this.product = product;
+    public OrderItemEntity(Long orderId, Long productId, Integer quantity) {
+        this.orderId = orderId;
+        this.productId = productId;
         this.quantity = quantity;
     }
 

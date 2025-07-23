@@ -29,17 +29,14 @@ public class CustomRepositoryImpl implements CustomRepository {
 
     @Override
     public Mono<List<ProductEntity>> findByNameContainingIgnoreCasePaged(String name, int offset, int limit) {
+        String sql = String.format(
+                "SELECT * FROM products WHERE LOWER(name) LIKE LOWER(CONCAT('%%', '%s', '%%')) ORDER BY id LIMIT %d OFFSET %d",
+                name, limit, offset
+        );
+
         return template
                 .getDatabaseClient()
-                .sql("""
-                        SELECT * FROM products
-                          WHERE LOWER(name) LIKE LOWER(CONCAT('%', :name, '%'))
-                          ORDER BY id
-                          LIMIT :limit OFFSET :offset
-                        """)
-                .bind("name", name)
-                .bind("limit", limit)
-                .bind("offset", offset)
+                .sql(sql)
                 .map(this::mapRowToProductEntity)
                 .all()
                 .collectList();
@@ -47,18 +44,14 @@ public class CustomRepositoryImpl implements CustomRepository {
 
     @Override
     public Mono<List<ProductEntity>> findByNameContainingIgnoreCasePagedSorted(String name, int offset, int limit, String sortField) {
+        String sql = String.format(
+                "SELECT * FROM products WHERE LOWER(name) LIKE LOWER(CONCAT('%%', '%s', '%%')) ORDER BY %s LIMIT %d OFFSET %d",
+                name, sortField, limit, offset
+        );
+
         return template
                 .getDatabaseClient()
-                .sql("""
-                        SELECT * FROM products
-                          WHERE LOWER(name) LIKE LOWER(CONCAT('%%', :name, '%%'))
-                          ORDER BY :sort_field
-                          LIMIT :limit OFFSET :offset
-                        """)
-                .bind("name", name)
-                .bind("sort_field", sortField)
-                .bind("limit", limit)
-                .bind("offset", offset)
+                .sql(sql)
                 .map(this::mapRowToProductEntity)
                 .all()
                 .collectList();
@@ -66,14 +59,11 @@ public class CustomRepositoryImpl implements CustomRepository {
 
     @Override
     public Mono<List<ProductEntity>> findPaged(int offset, int limit) {
+        String sql = String.format("SELECT * FROM products LIMIT %d OFFSET %d", limit, offset);
+
         return template
                 .getDatabaseClient()
-                .sql("""
-                        SELECT * FROM products
-                          LIMIT :limit OFFSET :offset
-                        """)
-                .bind("limit", limit)
-                .bind("offset", offset)
+                .sql(sql)
                 .map(this::mapRowToProductEntity)
                 .all()
                 .collectList();
@@ -81,16 +71,14 @@ public class CustomRepositoryImpl implements CustomRepository {
 
     @Override
     public Mono<List<ProductEntity>> findPagedSorted(int offset, int limit, String sortField) {
+        String sql = String.format(
+                "SELECT * FROM products ORDER BY %s LIMIT %d OFFSET %d",
+                sortField, limit, offset
+        );
+
         return template
                 .getDatabaseClient()
-                .sql("""
-                        SELECT * FROM products
-                          ORDER BY :sort_field
-                          LIMIT :limit OFFSET :offset
-                        """)
-                .bind("sort_field", sortField)
-                .bind("limit", limit)
-                .bind("offset", offset)
+                .sql(sql)
                 .map(this::mapRowToProductEntity)
                 .all()
                 .collectList();

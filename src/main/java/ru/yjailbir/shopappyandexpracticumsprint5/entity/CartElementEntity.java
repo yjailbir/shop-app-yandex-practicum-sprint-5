@@ -1,6 +1,7 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -12,6 +13,8 @@ public class CartElementEntity {
 
     @Column("product_id")
     private Long productId;
+
+    @Transient
     private ProductEntity productEntity;
 
     @Column("quantity")
@@ -20,7 +23,8 @@ public class CartElementEntity {
     public CartElementEntity() {
     }
 
-    public CartElementEntity(ProductEntity productEntity, Integer quantity) {
+    public CartElementEntity(Long productId, ProductEntity productEntity, Integer quantity) {
+        this.productId = productId;
         this.productEntity = productEntity;
         this.quantity = quantity;
     }
@@ -57,7 +61,7 @@ public class CartElementEntity {
         this.quantity = quantity;
     }
 
-    public Long geProductId() {
+    public Long getProductId() {
         return productId;
     }
 

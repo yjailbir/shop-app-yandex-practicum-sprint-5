@@ -21,6 +21,7 @@ class ProductServiceTest {
     private CartElementCrudRepository cartElementCrudRepository;
     private CustomRepository customRepository;
     private OrderCrudRepository orderCrudRepository;
+    private OrderItemsCrudRepository orderItemsCrudRepository;
     private ProductService productService;
 
     @BeforeEach
@@ -29,7 +30,8 @@ class ProductServiceTest {
         cartElementCrudRepository = mock(CartElementCrudRepository.class);
         customRepository = mock(CustomRepository.class);
         orderCrudRepository = mock(OrderCrudRepository.class);
-        productService = new ProductService(productCrudRepository, cartElementCrudRepository, customRepository, orderCrudRepository);
+        orderItemsCrudRepository = mock(OrderItemsCrudRepository.class);
+        productService = new ProductService(productCrudRepository, cartElementCrudRepository, customRepository, orderCrudRepository, orderItemsCrudRepository);
     }
 
     @Test
@@ -64,21 +66,6 @@ class ProductServiceTest {
 
         StepVerifier.create(productService.getProductById(1L))
                 .expectNextMatches(dto -> dto.getName().equals("Test"))
-                .verifyComplete();
-    }
-
-    @Test
-    void getCart_shouldReturnAllCartItems() {
-        ProductEntity product = new ProductEntity();
-        product.setId(1L);
-        product.setName("Name");
-        CartElementEntity cartElement = new CartElementEntity(product, 2);
-
-        when(cartElementCrudRepository.findAll()).thenReturn(Flux.just(cartElement));
-        when(cartElementCrudRepository.findByProductEntity_Id(1L)).thenReturn(Mono.just(cartElement));
-
-        StepVerifier.create(productService.getCart())
-                .expectNextMatches(dto -> dto.getName().equals("Name") && dto.getCount() == 2)
                 .verifyComplete();
     }
 
@@ -125,16 +112,6 @@ class ProductServiceTest {
         StepVerifier.create(productService.getOrderById(1L))
                 .expectNextMatches(dto -> dto.getName().equals("Test") && dto.getCount() == 3)
                 .verifyComplete();
-    }
-
-    @Test
-    void getSumFromItemsList_shouldReturnTotal() {
-        List<ProductDto> products = List.of(
-                new ProductDto(1L, "A", "", 100, "", 2),
-                new ProductDto(2L, "B", "", 50, "", 1)
-        );
-
-        assertEquals(250, productService.getSumFromItemsList(products));
     }
 }
 

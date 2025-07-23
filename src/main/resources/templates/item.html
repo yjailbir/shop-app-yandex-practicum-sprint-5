@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
+<meta charset="UTF-8">
+
 <head>
     <title>Витрина товаров</title>
 </head>
@@ -28,7 +30,8 @@
         <p>
             <span th:text="${product.getDescription()}"></span>
         </p>
-        <form th:action="@{/shop/add/{id} (id = ${product.getId()})}" method="post">
+        <form th:action="@{/shop/change/{id} (id = ${product.getId()})}" method="post">
+            <input type="hidden" name="redirect" value="main"/>
             <button name="action" th:if="${product.getCount() > 0}" value="minus">-</button>
             <span th:text="${product.getCount()}"></span>
             <button name="action" value="plus">+</button>

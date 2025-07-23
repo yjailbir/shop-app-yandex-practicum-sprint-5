@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.yjailbir.shopappyandexpracticumsprint5.dto.ChangeCountDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.service.ProductService;
 
@@ -61,15 +62,17 @@ public class ShopController {
     @PostMapping("/change/{id}")
     public Mono<String> addItem(
             @PathVariable("id") Long id,
-            @RequestParam("action") String action,
-            @RequestParam("redirect") String redirect
+            @ModelAttribute ChangeCountDto formData
     ) {
-        return productService.changeCountInCart(id, action)
+        return productService.changeCountInCart(id, formData.getAction())
                 .then(Mono.fromSupplier(() -> {
-                    if ("main".equals(redirect)) {
+                    if ("main".equals(formData.getRedirect())) {
                         return "redirect:/shop";
-                    } else if ("cart".equals(redirect)) {
+                    } else if ("cart".equals(formData.getRedirect())) {
                         return "redirect:/shop/cart";
+                    }
+                    else if (formData.getRedirect().equals(id.toString())) {
+                        return "redirect:/shop/" + formData.getRedirect();
                     }
                     return "redirect:/shop";
                 }));

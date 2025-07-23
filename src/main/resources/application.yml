@@ -2,13 +2,12 @@ spring:
   application:
     name: shop-app-yandex-practicum-sprint-5
   r2dbc:
-    url: r2dbc:h2:mem:shop
+    url: r2dbc:h2:mem:///shop
     username: h2
     password: h2
-
-  jpa:
-    hibernate:
-      ddl-auto: update
+  thymeleaf:
+    encoding: UTF-8
+    mode: HTML
 
 values:
   img_folder: F:\Images

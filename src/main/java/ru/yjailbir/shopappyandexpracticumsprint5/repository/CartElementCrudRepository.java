@@ -7,5 +7,5 @@ import ru.yjailbir.shopappyandexpracticumsprint5.entity.CartElementEntity;
 
 @Repository
 public interface CartElementCrudRepository extends ReactiveCrudRepository<CartElementEntity, Long> {
-    Mono<CartElementEntity> findByProductEntity_Id(Long productId);
+    Mono<CartElementEntity> findByProductId(Long productId);
 }
