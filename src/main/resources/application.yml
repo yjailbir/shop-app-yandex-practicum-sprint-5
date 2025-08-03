@@ -8,6 +8,12 @@ spring:
   thymeleaf:
     encoding: UTF-8
     mode: HTML
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
 
 values:
   img_folder: F:\Images

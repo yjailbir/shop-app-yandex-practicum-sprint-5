@@ -1,6 +1,8 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,6 +40,7 @@ public class ProductService {
         this.orderItemsCrudRepository = orderItemsCrudRepository;
     }
 
+    @CacheEvict(value = "products", key = "#productDto.name")
     public Mono<Void> save(ProductDto productDto) {
         return productCrudRepository.findByName(productDto.getName())
                 .defaultIfEmpty(new ProductEntity())
@@ -90,7 +93,9 @@ public class ProductService {
                 );
     }
 
+    @Cacheable(value = "products", key = "#id")
     public Mono<ProductDto> getProductById(Long id) {
+        System.out.println("В кеше нет продукта с id = " + id + ". Обращаемся к базе данных");
         return productCrudRepository.findById(id).mapNotNull(productEntity -> mapEntityToDto(productEntity, null));
     }
 
