@@ -75,6 +75,24 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>7.12.0</version>
+				<configuration>
+					<inputSpec>${project.basedir}/src/main/resources/api-spec.yml</inputSpec>
+					<output>../payment-service</output>
+					<generatorName>spring</generatorName>
+					<apiPackage>ru.yjailbir.payment-service.controllers</apiPackage>
+					<modelPackage>ru.yjailbir.payment-service.dto</modelPackage>
+					<configOptions>
+						<interfaceOnly>false</interfaceOnly>
+						<library>spring-boot</library>
+						<useTags>true</useTags>
+						<reactive>true</reactive>
+					</configOptions>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

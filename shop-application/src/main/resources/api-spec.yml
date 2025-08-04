@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: Payment Service API
+  description: REST API для взаимодействия основного приложения магазина с сервисом платежей
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8082
+    description: Локальный сервер сервиса платежей
+
+paths:
+  /balance/{userId}:
+    get:
+      summary: Получить баланс пользователя
+      description: Возвращает текущий баланс на счету пользователя.
+      operationId: getBalance
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: Уникальный идентификатор пользователя
+      responses:
+        '200':
+          description: Баланс успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /pay:
+    post:
+      summary: Провести платёж
+      description: Списывает сумму заказа с баланса пользователя.
+      operationId: makePayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Платёж успешно проведён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Недостаточно средств или некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+
+    BalanceResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Идентификатор пользователя
+        balance:
+          type: number
+          format: double
+          description: Текущий баланс
+      required:
+        - userId
+        - balance
+
+    PaymentRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Идентификатор пользователя
+        amount:
+          type: number
+          format: double
+          minimum: 0
+          description: Сумма для списания
+      required:
+        - userId
+        - amount
+
+    PaymentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Успешность платежа
+        remainingBalance:
+          type: number
+          format: double
+          description: Оставшийся баланс
+        message:
+          type: string
+          description: Дополнительная информация
+      required:
+        - success
+        - remainingBalance
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Сообщение об ошибке
+      required:
+        - error
