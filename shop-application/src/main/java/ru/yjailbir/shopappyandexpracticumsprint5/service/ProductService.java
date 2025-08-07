@@ -95,7 +95,6 @@ public class ProductService {
 
     @Cacheable(value = "products", key = "#id")
     public Mono<ProductDto> getProductById(Long id) {
-        System.out.println("В кеше нет продукта с id = " + id + ". Обращаемся к базе данных");
         return productCrudRepository.findById(id).mapNotNull(productEntity -> mapEntityToDto(productEntity, null));
     }
 

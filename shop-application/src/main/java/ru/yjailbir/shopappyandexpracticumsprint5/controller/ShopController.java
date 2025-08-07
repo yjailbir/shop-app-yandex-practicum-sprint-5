@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.ChangeCountDto;
+import ru.yjailbir.shopappyandexpracticumsprint5.dto.PaymentsApiBalanceResponseDto;
+import ru.yjailbir.shopappyandexpracticumsprint5.dto.PaymentsApiPayRequestDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.service.ProductService;
 
@@ -16,11 +19,12 @@ import java.util.List;
 @RequestMapping("/shop")
 public class ShopController {
     private final ProductService productService;
-
+    private final WebClient webClient;
 
     @Autowired
     public ShopController(ProductService productService) {
         this.productService = productService;
+        this.webClient = WebClient.builder().build();
     }
 
     @GetMapping
@@ -84,9 +88,21 @@ public class ShopController {
                 .collectList()
                 .flatMap(products -> {
                     model.addAttribute("products", products);
-                    return productService.getSumFromItemsList(products)
-                            .map(sum -> {
+
+                    Mono<Integer> sumMono = productService.getSumFromItemsList(products);
+                    Mono<Long> balanceMono = webClient.get()
+                            .uri("http://localhost:8082/payments/balance/1")
+                            .retrieve()
+                            .bodyToMono(PaymentsApiBalanceResponseDto.class)
+                            .map(PaymentsApiBalanceResponseDto::getBalance);
+
+                    return Mono.zip(sumMono, balanceMono)
+                            .map(tuple -> {
+                                Integer sum = tuple.getT1();
+                                Long balance = tuple.getT2();
+
                                 model.addAttribute("sum", sum);
+                                model.addAttribute("balance", balance);
                                 return "cart";
                             });
                 });
@@ -95,8 +111,20 @@ public class ShopController {
 
     @PostMapping("/order")
     public Mono<String> makeOrder() {
-        return productService.makeOrder()
-                .map(orderId -> "redirect:/shop/orders/" + orderId);
+        return productService.getCart()
+                .collectList()
+                .flatMap(items -> {
+                    Long sum = Long.valueOf(productService.getSumFromItemsList(items).block());
+                    PaymentsApiPayRequestDto paymentRequest = new PaymentsApiPayRequestDto("1", sum);
+
+                    return webClient.post()
+                            .uri("http://localhost:8082/payments/pay")
+                            .bodyValue(paymentRequest)
+                            .retrieve()
+                            .bodyToMono(Void.class)
+                            .then(productService.makeOrder()
+                                    .map(orderId -> "redirect:/shop/orders/" + orderId));
+                });
     }
 
     @GetMapping("/orders/{id}")
@@ -109,7 +137,7 @@ public class ShopController {
                     return productService.getSumFromItemsList(products)
                             .map(sum -> {
                                 model.addAttribute("sum", sum);
-                                return "order"; // имя шаблона
+                                return "order";
                             });
                 });
     }
