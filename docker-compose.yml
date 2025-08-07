@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7.4.2-bookworm
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    command: >
+      sh -c "redis-server && sleep 7 && redis-cli"
+
+  shop-application:
+    build:
+      context: ./shop-application
+    container_name: shop-app
+    depends_on:
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+
+  payment-service:
+    build:
+      context: ./payment-service
+    container_name: payment-service
+    depends_on:
+      - redis
+    ports:
+      - "8082:8082"

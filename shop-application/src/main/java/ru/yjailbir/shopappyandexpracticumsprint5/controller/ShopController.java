@@ -91,7 +91,7 @@ public class ShopController {
 
                     Mono<Integer> sumMono = productService.getSumFromItemsList(products);
                     Mono<Long> balanceMono = webClient.get()
-                            .uri("http://localhost:8082/payments/balance/1")
+                            .uri("http://payment-service:8082/payments/balance/1")
                             .retrieve()
                             .bodyToMono(PaymentsApiBalanceResponseDto.class)
                             .map(PaymentsApiBalanceResponseDto::getBalance);
@@ -118,7 +118,7 @@ public class ShopController {
                     PaymentsApiPayRequestDto paymentRequest = new PaymentsApiPayRequestDto("1", sum);
 
                     return webClient.post()
-                            .uri("http://localhost:8082/payments/pay")
+                            .uri("http://payment-service:8082/payments/pay")
                             .bodyValue(paymentRequest)
                             .retrieve()
                             .bodyToMono(Void.class)

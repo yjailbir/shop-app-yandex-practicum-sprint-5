@@ -15,10 +15,10 @@ import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGe
     basePackages = {"org.openapitools", "ru.yjailbir.payment_service.controllers" , "org.openapitools.configuration"},
     nameGenerator = FullyQualifiedAnnotationBeanNameGenerator.class
 )
-public class OpenApiGeneratorApplication {
+public class PaymentsApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OpenApiGeneratorApplication.class, args);
+        SpringApplication.run(PaymentsApiApplication.class, args);
     }
 
     @Bean(name = "org.openapitools.OpenApiGeneratorApplication.jsonNullableModule")
