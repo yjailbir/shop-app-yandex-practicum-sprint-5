@@ -1,18 +1,13 @@
 package ru.yjailbir.payment_service.dto;
 
-import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import org.springframework.lang.Nullable;
-import org.openapitools.jackson.nullable.JsonNullable;
-import java.time.OffsetDateTime;
-import javax.validation.Valid;
+
 import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 
-import java.util.*;
 import javax.annotation.Generated;
 
 /**
@@ -24,7 +19,7 @@ public class PaymentResponse {
 
   private Boolean success;
 
-  private Double remainingBalance;
+  private Long remainingBalance;
 
   private @Nullable String message;
 
@@ -35,7 +30,7 @@ public class PaymentResponse {
   /**
    * Constructor with only required parameters
    */
-  public PaymentResponse(Boolean success, Double remainingBalance) {
+  public PaymentResponse(Boolean success, Long remainingBalance) {
     this.success = success;
     this.remainingBalance = remainingBalance;
   }
@@ -60,7 +55,7 @@ public class PaymentResponse {
     this.success = success;
   }
 
-  public PaymentResponse remainingBalance(Double remainingBalance) {
+  public PaymentResponse remainingBalance(Long remainingBalance) {
     this.remainingBalance = remainingBalance;
     return this;
   }
@@ -72,11 +67,11 @@ public class PaymentResponse {
   @NotNull 
   @Schema(name = "remainingBalance", description = "Оставшийся баланс", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("remainingBalance")
-  public Double getRemainingBalance() {
+  public Long getRemainingBalance() {
     return remainingBalance;
   }
 
-  public void setRemainingBalance(Double remainingBalance) {
+  public void setRemainingBalance(Long remainingBalance) {
     this.remainingBalance = remainingBalance;
   }
 

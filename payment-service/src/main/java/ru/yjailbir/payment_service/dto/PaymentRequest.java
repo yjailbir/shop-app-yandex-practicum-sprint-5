@@ -1,18 +1,12 @@
 package ru.yjailbir.payment_service.dto;
 
-import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import org.springframework.lang.Nullable;
-import org.openapitools.jackson.nullable.JsonNullable;
-import java.time.OffsetDateTime;
-import javax.validation.Valid;
+
 import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 
-import java.util.*;
 import javax.annotation.Generated;
 
 /**
@@ -24,7 +18,7 @@ public class PaymentRequest {
 
   private String userId;
 
-  private Double amount;
+  private Long amount;
 
   public PaymentRequest() {
     super();
@@ -33,7 +27,7 @@ public class PaymentRequest {
   /**
    * Constructor with only required parameters
    */
-  public PaymentRequest(String userId, Double amount) {
+  public PaymentRequest(String userId, Long amount) {
     this.userId = userId;
     this.amount = amount;
   }
@@ -58,7 +52,7 @@ public class PaymentRequest {
     this.userId = userId;
   }
 
-  public PaymentRequest amount(Double amount) {
+  public PaymentRequest amount(Long amount) {
     this.amount = amount;
     return this;
   }
@@ -71,11 +65,11 @@ public class PaymentRequest {
   @NotNull @DecimalMin("0") 
   @Schema(name = "amount", description = "Сумма для списания", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("amount")
-  public Double getAmount() {
+  public Long getAmount() {
     return amount;
   }
 
-  public void setAmount(Double amount) {
+  public void setAmount(Long amount) {
     this.amount = amount;
   }
 

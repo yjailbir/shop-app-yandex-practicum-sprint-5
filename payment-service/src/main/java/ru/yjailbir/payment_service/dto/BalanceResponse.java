@@ -24,7 +24,7 @@ public class BalanceResponse {
 
   private String userId;
 
-  private Double balance;
+  private Long balance;
 
   public BalanceResponse() {
     super();
@@ -33,7 +33,7 @@ public class BalanceResponse {
   /**
    * Constructor with only required parameters
    */
-  public BalanceResponse(String userId, Double balance) {
+  public BalanceResponse(String userId, Long balance) {
     this.userId = userId;
     this.balance = balance;
   }
@@ -58,7 +58,7 @@ public class BalanceResponse {
     this.userId = userId;
   }
 
-  public BalanceResponse balance(Double balance) {
+  public BalanceResponse balance(Long balance) {
     this.balance = balance;
     return this;
   }
@@ -70,11 +70,11 @@ public class BalanceResponse {
   @NotNull 
   @Schema(name = "balance", description = "Текущий баланс", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("balance")
-  public Double getBalance() {
+  public Long getBalance() {
     return balance;
   }
 
-  public void setBalance(Double balance) {
+  public void setBalance(Long balance) {
     this.balance = balance;
   }
 
