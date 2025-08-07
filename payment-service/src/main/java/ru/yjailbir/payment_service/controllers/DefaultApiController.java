@@ -16,14 +16,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-04T21:17:01.787026800+03:00[Europe/Moscow]", comments = "Generator version: 7.12.0")
 @Controller
-@RequestMapping("${openapi.paymentService.base-path:}")
+@RequestMapping("/payments")
 public class DefaultApiController implements DefaultApi {
     private AtomicLong balance = new AtomicLong(100_000L);
 
     @Override
     public Mono<ResponseEntity<BalanceResponse>> getBalance(String userId, ServerWebExchange exchange) {
-        //Id добавлено заранее для следующего дз
-        return Mono.just(ResponseEntity.ok(new BalanceResponse("-1", balance.incrementAndGet())));
+        //Id добавлено заранее для следующего дз (на всякий случай. при ненадобности будет убрано)
+        return Mono.just(ResponseEntity.ok(new BalanceResponse("-1", balance.get())));
     }
 
     @Override
