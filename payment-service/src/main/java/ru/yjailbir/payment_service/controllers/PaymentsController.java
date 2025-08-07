@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-04T21:17:01.787026800+03:00[Europe/Moscow]", comments = "Generator version: 7.12.0")
 @Controller
 @RequestMapping("/payments")
-public class DefaultApiController implements DefaultApi {
+public class PaymentsController implements DefaultApi {
     private AtomicLong balance = new AtomicLong(100_000L);
 
     @Override
@@ -32,5 +32,10 @@ public class DefaultApiController implements DefaultApi {
             balance.addAndGet(-request.getAmount());
             return ResponseEntity.ok(new PaymentResponse(true, balance.get()));
         });
+    }
+
+    //Для тестов
+    public void setBalance(Long balance) {
+        this.balance.set(balance);
     }
 }
