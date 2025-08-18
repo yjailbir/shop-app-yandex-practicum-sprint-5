@@ -14,6 +14,21 @@ spring:
       port: ${SPRING_REDIS_PORT:6379}
   cache:
     type: redis
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            authorization-uri: http://localhost:8081/realms/master/protocol/openid-connect/auth
+            issuer-uri: http://keycloak:8080/realms/master
+        registration:
+          keycloak:
+            authorization-grant-type: authorization_code
+            provider: keycloak
+            client-id: shop
+            client-secret: a2EYUVj18f6WulkPPt4hiNJ2jUh7RsLG
+            redirect-uri: 'http://localhost:8080/{action}/oauth2/code/{registrationId}'
+            scope: openid, profile
 
 values:
   img_folder: F:\Images
