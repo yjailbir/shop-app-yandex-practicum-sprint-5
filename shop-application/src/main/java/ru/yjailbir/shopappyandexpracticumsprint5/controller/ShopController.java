@@ -54,7 +54,7 @@ public class ShopController {
                 });
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/products/{id}")
     public Mono<String> getItem(@PathVariable("id") Long id, Model model) {
         return productService.getProductById(id)
                 .map(product -> {
