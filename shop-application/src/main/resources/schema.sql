@@ -9,13 +9,15 @@ CREATE TABLE products
 
 CREATE TABLE orders
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT
+    id      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT
 );
 
 CREATE TABLE order_items
 (
     id         BIGINT PRIMARY KEY AUTO_INCREMENT,
     order_id   BIGINT,
+    user_id    BIGINT,
     product_id BIGINT,
     quantity   INT,
     CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
@@ -25,6 +27,7 @@ CREATE TABLE order_items
 CREATE TABLE cart
 (
     id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id    BIGINT,
     product_id BIGINT,
     quantity   INT,
     CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES products (id)

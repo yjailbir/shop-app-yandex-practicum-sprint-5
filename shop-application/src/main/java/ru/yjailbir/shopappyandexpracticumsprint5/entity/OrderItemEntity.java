@@ -13,6 +13,9 @@ public class OrderItemEntity {
     @Column("order_id")
     private Long orderId;
 
+    @Column("user_id")
+    private Long userId;
+
     @Transient
     private OrderEntity order;
 
@@ -28,7 +31,8 @@ public class OrderItemEntity {
     public OrderItemEntity() {
     }
 
-    public OrderItemEntity(Long orderId, Long productId, Integer quantity) {
+    public OrderItemEntity(Long userId, Long orderId, Long productId, Integer quantity) {
+        this.userId = userId;
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;

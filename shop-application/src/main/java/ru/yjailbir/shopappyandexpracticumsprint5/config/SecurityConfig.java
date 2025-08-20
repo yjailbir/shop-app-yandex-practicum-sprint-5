@@ -2,7 +2,6 @@ package ru.yjailbir.shopappyandexpracticumsprint5.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
@@ -13,17 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
-import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
-import org.springframework.security.web.server.authentication.logout.WebSessionServerLogoutHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 @Configuration
 @EnableWebFluxSecurity

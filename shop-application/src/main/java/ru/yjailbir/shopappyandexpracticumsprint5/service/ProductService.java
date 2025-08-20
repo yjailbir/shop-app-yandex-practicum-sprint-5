@@ -61,7 +61,7 @@ public class ProductService {
                 .map(count -> (count % onePageProductsCount == 0 ? count / onePageProductsCount : count / onePageProductsCount + 1));
     }
 
-    public Flux<ProductDto> getProducts(int pageSize, int pageNumber, String search, String sort) {
+    public Flux<ProductDto> getProducts(ShopUserDetails userDetails, int pageSize, int pageNumber, String search, String sort) {
         int offset = pageNumber * pageSize;
         String sortField = switch (sort) {
             case "ALPHA" -> "name";
@@ -85,12 +85,18 @@ public class ProductService {
             }
         }
 
-        return productsMono.flatMapMany(Flux::fromIterable)
-                .flatMap(product ->
-                        cartElementCrudRepository.findByProductId(product.getId())
-                                .defaultIfEmpty(new CartElementEntity(product.getId(), product, 0))
-                                .map(cartElement -> mapEntityToDto(product, cartElement.getQuantity()))
-                );
+        if (userDetails != null) {
+            Long userId = userDetails.getId();
+            return productsMono.flatMapMany(Flux::fromIterable)
+                    .flatMap(product ->
+                            cartElementCrudRepository.findByProductId(product.getId())
+                                    .defaultIfEmpty(new CartElementEntity(userId, product.getId(), product, 0))
+                                    .map(cartElement -> mapEntityToDto(product, cartElement.getQuantity()))
+                    );
+        } else {
+            return productsMono.flatMapMany(Flux::fromIterable)
+                    .map(product -> mapEntityToDto(product, 0));
+        }
     }
 
     @Cacheable(value = "products", key = "#id")
@@ -98,13 +104,13 @@ public class ProductService {
         return productCrudRepository.findById(id).mapNotNull(productEntity -> mapEntityToDto(productEntity, null));
     }
 
-    public Mono<Void> changeCountInCart(Long productId, String action) {
-
-        Mono<CartElementEntity> existingCartElementMono = cartElementCrudRepository.findByProductId(productId);
+    public Mono<Void> changeCountInCart(ShopUserDetails userDetails, Long productId, String action) {
+        Long userId = userDetails.getId();
+        Mono<CartElementEntity> existingCartElementMono = cartElementCrudRepository.findByProductIdAndUserId(productId, userId);
 
         Mono<CartElementEntity> cartElementMono = existingCartElementMono.switchIfEmpty(
                 productCrudRepository.findById(productId)
-                        .map(product -> new CartElementEntity(product.getId(), product, 0))
+                        .map(product -> new CartElementEntity(userId, product.getId(), product, 0))
         );
 
         return cartElementMono.flatMap(cartElement -> {
@@ -127,8 +133,8 @@ public class ProductService {
         });
     }
 
-    public Flux<ProductDto> getCart() {
-        return cartElementCrudRepository.findAll()
+    public Flux<ProductDto> getCart(ShopUserDetails userDetails) {
+        return cartElementCrudRepository.findAllByUserId(userDetails.getId())
                 .publishOn(Schedulers.boundedElastic())
                 .map(cartElement -> {
                     ProductEntity product = productCrudRepository.findById(cartElement.getProductId()).block();
@@ -144,28 +150,29 @@ public class ProductService {
         return Mono.just(products.stream().mapToInt(x -> (x.getPrice() * x.getCount())).sum());
     }
 
-    public Flux<OrderEntity> getAllOrders() {
-        return orderCrudRepository.findAll();
+    public Flux<OrderEntity> getAllUserOrders(ShopUserDetails userDetails) {
+        return orderCrudRepository.findByUserId(userDetails.getId());
     }
 
     public Mono<Long> getMaxOrderId() {
         return customRepository.getMaxOrderId();
     }
 
-    public Mono<Long> makeOrder() {
-        OrderEntity orderEntity = new OrderEntity();
+    public Mono<Long> makeOrder(ShopUserDetails userDetails) {
+        Long userId = userDetails.getId();
+        OrderEntity orderEntity = new OrderEntity(userId);
         return orderCrudRepository.save(orderEntity)
                 .then(getMaxOrderId())
                 .flatMap(id ->
-                        getCart()
+                        getCart(userDetails)
                                 .flatMap(productDto ->
                                         productCrudRepository.findByName(productDto.getName())
-                                                .map(productEntity -> new OrderItemEntity(id, productEntity.getId(), productDto.getCount()))
+                                                .map(productEntity -> new OrderItemEntity(userId, id, productEntity.getId(), productDto.getCount()))
                                 )
                                 .collectList()
                                 .flatMap(orderItems ->
                                         orderItemsCrudRepository.saveAll(orderItems).then()
-                                                .then(cartElementCrudRepository.deleteAll())
+                                                .then(cartElementCrudRepository.deleteAllByUserId(userId))
                                                 .thenReturn(id)
                                 )
                 );

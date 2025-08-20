@@ -14,10 +14,17 @@ public class OrderEntity {
     @Column("id")
     private Long id;
 
+    @Column("user_id")
+    private Long userId;
+
     @Transient
     private List<OrderItemEntity> items = new ArrayList<>();
 
     public OrderEntity() {
+    }
+
+    public OrderEntity(Long userId) {
+        this.userId = userId;
     }
 
     public Integer getSum() {

@@ -11,6 +11,9 @@ public class CartElementEntity {
     @Column("id")
     private Long id;
 
+    @Column("user_id")
+    private Long userId;
+
     @Column("product_id")
     private Long productId;
 
@@ -21,6 +24,13 @@ public class CartElementEntity {
     private Integer quantity;
 
     public CartElementEntity() {
+    }
+
+    public CartElementEntity(Long userId, Long productId, ProductEntity productEntity, Integer quantity) {
+        this.userId = userId;
+        this.productId = productId;
+        this.productEntity = productEntity;
+        this.quantity = quantity;
     }
 
     public CartElementEntity(Long productId, ProductEntity productEntity, Integer quantity) {
@@ -35,6 +45,14 @@ public class CartElementEntity {
 
     public void decrementQuantity() {
         this.quantity--;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Long getId() {

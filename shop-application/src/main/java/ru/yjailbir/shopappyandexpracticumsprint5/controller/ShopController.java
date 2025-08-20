@@ -1,6 +1,7 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import ru.yjailbir.shopappyandexpracticumsprint5.dto.PaymentsApiBalanceResponseD
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.PaymentsApiPayRequestDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.dto.ProductDto;
 import ru.yjailbir.shopappyandexpracticumsprint5.service.ProductService;
+import ru.yjailbir.shopappyandexpracticumsprint5.service.ShopUserDetails;
 
 import java.util.List;
 
@@ -33,16 +35,16 @@ public class ShopController {
             @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(name = "search", defaultValue = "") String search,
             @RequestParam(name = "sort", defaultValue = "NO") String sort,
-            Model model
+            Model model,
+            @AuthenticationPrincipal ShopUserDetails user
     ) {
         Mono<Long> totalPagesMono = productService.getProductsCount(pageSize);
-        Flux<ProductDto> productsFlux = productService.getProducts(pageSize, pageNumber, search, sort);
+        Flux<ProductDto> productsFlux = productService.getProducts(user, pageSize, pageNumber, search, sort);
 
         return totalPagesMono.zipWith(productsFlux.collectList())
                 .map(tuple -> {
                     Long totalPages = tuple.getT1();
                     List<ProductDto> products = tuple.getT2();
-
                     model.addAttribute("name", search);
                     model.addAttribute("pageSize", pageSize);
                     model.addAttribute("pageNumber", pageNumber);
@@ -66,9 +68,10 @@ public class ShopController {
     @PostMapping("/change/{id}")
     public Mono<String> addItem(
             @PathVariable("id") Long id,
-            @ModelAttribute ChangeCountDto formData
+            @ModelAttribute ChangeCountDto formData,
+            @AuthenticationPrincipal ShopUserDetails user
     ) {
-        return productService.changeCountInCart(id, formData.getAction())
+        return productService.changeCountInCart(user, id, formData.getAction())
                 .then(Mono.fromSupplier(() -> {
                     if ("main".equals(formData.getRedirect())) {
                         return "redirect:/shop";
@@ -83,8 +86,8 @@ public class ShopController {
     }
 
     @GetMapping("/cart")
-    public Mono<String> cart(Model model) {
-        return productService.getCart()
+    public Mono<String> cart(Model model, @AuthenticationPrincipal ShopUserDetails user) {
+        return productService.getCart(user)
                 .collectList()
                 .flatMap(products -> {
                     model.addAttribute("products", products);
@@ -110,8 +113,8 @@ public class ShopController {
 
 
     @PostMapping("/order")
-    public Mono<String> makeOrder() {
-        return productService.getCart()
+    public Mono<String> makeOrder(@AuthenticationPrincipal ShopUserDetails user) {
+        return productService.getCart(user)
                 .collectList()
                 .flatMap(items -> {
                     Long sum = Long.valueOf(productService.getSumFromItemsList(items).block());
@@ -122,7 +125,7 @@ public class ShopController {
                             .bodyValue(paymentRequest)
                             .retrieve()
                             .bodyToMono(Void.class)
-                            .then(productService.makeOrder()
+                            .then(productService.makeOrder(user)
                                     .map(orderId -> "redirect:/shop/orders/" + orderId));
                 });
     }
@@ -144,8 +147,8 @@ public class ShopController {
 
 
     @GetMapping("/orders")
-    public Mono<String> orders(Model model) {
-        return productService.getAllOrders()
+    public Mono<String> orders(Model model, @AuthenticationPrincipal ShopUserDetails user) {
+        return productService.getAllUserOrders(user)
                 .collectList()
                 .map(orders -> {
                     model.addAttribute("orders", orders);
