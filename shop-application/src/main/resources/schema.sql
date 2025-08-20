@@ -26,3 +26,9 @@ CREATE TABLE cart (
                       quantity INT,
                       CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255),
+    password VARCHAR(255)
+)
