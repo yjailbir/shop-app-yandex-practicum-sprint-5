@@ -8,6 +8,14 @@
 </head>
 
 <body>
+    <a th:href="@{/register}" style="float:right;">
+        <b>Новый пользователь &cudarrr;</b>
+    </a>
+    <form th:action="@{/logout}" method="post">
+        <a th:href="@{/logout}" style="float:right;">
+            <button type="submit">Выйти</button>
+        </a>
+    </form>
     <a th:href="@{/shop/orders}" style="float:right;">
         <b>ЗАКАЗЫ &cudarrr;</b>
     </a>

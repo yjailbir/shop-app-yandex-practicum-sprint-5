@@ -1,34 +1,65 @@
-CREATE TABLE products (
-                          id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                          name VARCHAR(255) NOT NULL,
-                          description VARCHAR(1000),
-                          price INT,
-                          img_name VARCHAR(255)
+CREATE TABLE products
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(255) NOT NULL,
+    description VARCHAR(1000),
+    price       INT,
+    img_name    VARCHAR(255)
 );
 
-CREATE TABLE orders (
-                        id BIGINT PRIMARY KEY AUTO_INCREMENT
-    -- остальные поля пока не указаны, если будут, дополни здесь
+CREATE TABLE orders
+(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT
 );
 
-CREATE TABLE order_items (
-                             id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                             order_id BIGINT,
-                             product_id BIGINT,
-                             quantity INT,
-                             CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-                             CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES products(id)
+CREATE TABLE order_items
+(
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_id   BIGINT,
+    product_id BIGINT,
+    quantity   INT,
+    CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
-CREATE TABLE cart (
-                      id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                      product_id BIGINT,
-                      quantity INT,
-                      CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES products(id)
+CREATE TABLE cart
+(
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    product_id BIGINT,
+    quantity   INT,
+    CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
-CREATE TABLE users (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE users
+(
+    id       BIGINT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(255),
     password VARCHAR(255)
-)
+);
+
+INSERT INTO products (name, description, price, img_name)
+VALUES ('Многофункциональный Тетрадь', 'Многофункциональный тетрадь из категории канцелярия.', 90811, 'Педро.jpg'),
+       ('Новый Маркер', 'Новый маркер из категории канцелярия.', 44203, 'Педро.jpg'),
+       ('Многофункциональный Телевизор', 'Многофункциональный телевизор из категории техника.', 19874, 'Педро.jpg'),
+       ('Красный Планшет', 'Красный планшет из категории техника.', 94817, 'Педро.jpg'),
+       ('Модный Тетрадь', 'Модный тетрадь из категории канцелярия.', 79642, 'Педро.jpg'),
+       ('Большой Ботинки', 'Большой ботинки из категории одежда.', 79569, 'Педро.jpg'),
+       ('Новый Шоколад', 'Новый шоколад из категории еда.', 71874, 'Педро.jpg'),
+       ('Качественный Шоколад', 'Качественный шоколад из категории еда.', 28606, 'Педро.jpg'),
+       ('Многофункциональный Платье', 'Многофункциональный платье из категории одежда.', 34229, 'Педро.jpg'),
+       ('Новый Микроволновка', 'Новый микроволновка из категории техника.', 87205, 'Педро.jpg'),
+       ('Удобный Хлеб', 'Удобный хлеб из категории еда.', 76973, 'Педро.jpg'),
+       ('Красный Футболка', 'Красный футболка из категории одежда.', 54668, 'Педро.jpg'),
+       ('Удобный Кетчуп', 'Удобный кетчуп из категории еда.', 85014, 'Педро.jpg'),
+       ('Элегантный Чипсы', 'Элегантный чипсы из категории еда.', 64815, 'Педро.jpg'),
+       ('Элегантный Клавиатура', 'Элегантный клавиатура из категории техника.', 23958, 'Педро.jpg'),
+       ('Новый Ручка', 'Новый ручка из категории канцелярия.', 56546, 'Педро.jpg'),
+       ('Красный Тумбочка', 'Красный тумбочка из категории мебель.', 96439, 'Педро.jpg'),
+       ('Миниатюрный Стикеры', 'Миниатюрный стикеры из категории канцелярия.', 43311, 'Педро.jpg'),
+       ('Качественный Линейка', 'Качественный линейка из категории канцелярия.', 38997, 'Педро.jpg'),
+       ('Дешёвый Линейка', 'Дешёвый линейка из категории канцелярия.', 16632, 'Педро.jpg'),
+       ('Новый Чипсы', 'Новый чипсы из категории еда.', 29143, 'Педро.jpg'),
+       ('Элегантный Кресло', 'Элегантный кресло из категории мебель.', 55748, 'Педро.jpg'),
+       ('Элегантный Куртка', 'Элегантный куртка из категории одежда.', 92198, 'Педро.jpg'),
+       ('Многофункциональный Пылесос', 'Многофункциональный пылесос из категории техника.', 86568, 'Педро.jpg'),
+       ('Красный Принтер', 'Красный принтер из категории техника.', 40713, 'Педро.jpg');

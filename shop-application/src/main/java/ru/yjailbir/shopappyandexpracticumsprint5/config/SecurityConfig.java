@@ -2,6 +2,7 @@ package ru.yjailbir.shopappyandexpracticumsprint5.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
@@ -11,8 +12,14 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.WebSessionServerLogoutHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
@@ -33,38 +40,25 @@ public class SecurityConfig {
                 .authenticationManager(authManager)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/login", "/register", "/shop", "/shop/products/**", "/add-products").permitAll()
+                        .pathMatchers("/login", "/logout", "/register", "/shop", "/shop/products/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .authenticationSuccessHandler((webFilterExchange, authentication) ->
-                                reactor.core.publisher.Mono.defer(() -> {
-                                    var resp = webFilterExchange.getExchange().getResponse();
-                                    resp.setStatusCode(org.springframework.http.HttpStatus.FOUND);
-                                    resp.getHeaders().setLocation(java.net.URI.create("/shop"));
-                                    return resp.setComplete();
-                                }))
-                        .authenticationFailureHandler((webFilterExchange, ex) ->
-                                reactor.core.publisher.Mono.defer(() -> {
-                                    var resp = webFilterExchange.getExchange().getResponse();
-                                    resp.setStatusCode(org.springframework.http.HttpStatus.FOUND);
-                                    resp.getHeaders().setLocation(java.net.URI.create("/login?error"));
-                                    return resp.setComplete();
-                                }))
+                        .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/shop"))
                 )
-
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessHandler((exchange, authentication) ->
                                 exchange.getExchange().getSession()
                                         .flatMap(WebSession::invalidate)
                                         .then(Mono.fromRunnable(() -> {
-                                            exchange.getExchange().getResponse().setStatusCode(HttpStatus.FOUND);
-                                            exchange.getExchange().getResponse().getHeaders().setLocation(URI.create("/shop"));
+                                            exchange.getExchange().getResponse()
+                                                    .setStatusCode(HttpStatus.OK);
                                         }))
                         )
-                ).build();
+                )
+                .build();
     }
 
     @Bean

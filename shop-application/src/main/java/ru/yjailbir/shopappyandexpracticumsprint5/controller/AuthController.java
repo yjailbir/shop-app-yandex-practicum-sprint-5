@@ -22,17 +22,21 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage() {
-        return "login";
+    public Mono<String> loginPage() {
+        return Mono.just("login");
     }
 
     @GetMapping("/register")
-    public String registerPage() {
-        return "register";
+    public Mono<String> registerPage() {
+        return Mono.just("register");
+    }
+
+    @PostMapping("/logout")
+    public Mono<String> logout() {
+        return Mono.just("redirect:/shop");
     }
 
     @PostMapping("/register")
-    @ResponseBody
     public Mono<String> register(@ModelAttribute RegistrationDto dto) {
         String username = dto.getUsername();
         String password = dto.getPassword();
@@ -47,7 +51,7 @@ public class AuthController {
                         return Mono.just("username already taken");
                     }
                     var user = new UserEntity(username, passwordEncoder.encode(password));
-                    return userRepository.save(user).then(Mono.just("ok"));
+                    return userRepository.save(user).then(Mono.just("redirect:/shop"));
                 });
     }
 }

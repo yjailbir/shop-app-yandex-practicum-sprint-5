@@ -152,11 +152,4 @@ public class ShopController {
                     return "orders";
                 });
     }
-
-    @PostMapping("/add-products")
-    public Mono<String> addProducts(@RequestBody List<ProductDto> products) {
-        return Flux.fromIterable(products)
-                .flatMap(productService::save)
-                .then(Mono.just("redirect:/shop"));
-    }
 }
