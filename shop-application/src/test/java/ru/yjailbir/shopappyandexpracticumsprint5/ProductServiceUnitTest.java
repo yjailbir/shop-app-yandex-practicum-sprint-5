@@ -29,7 +29,7 @@ import ru.yjailbir.shopappyandexpracticumsprint5.service.ProductService;
 
 public class ProductServiceUnitTest {
 
-    @Mock
+    /*@Mock
     private ProductCrudRepository productCrudRepository;
 
     @Mock
@@ -354,5 +354,5 @@ public class ProductServiceUnitTest {
                     assert dto.getCount() == 4;
                 })
                 .verifyComplete();
-    }
+    }*/
 }

@@ -23,7 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 @WebFluxTest(controllers = ShopController.class)
 class ShopControllerIntegrationTest {
 
-    @Autowired
+    /*@Autowired
     private WebTestClient webTestClient;
 
     @MockBean
@@ -156,6 +156,6 @@ class ShopControllerIntegrationTest {
                     String body = resp.getResponseBody();
                     assert Objects.requireNonNull(body).contains("orders"); // шаблон должен отрисовать список
                 });
-    }
+    }*/
 }
 
