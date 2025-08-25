@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -17,8 +19,11 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 @Configuration
 @EnableWebFluxSecurity
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
     @Bean
@@ -46,10 +51,14 @@ public class SecurityConfig {
                                         .flatMap(WebSession::invalidate)
                                         .then(Mono.fromRunnable(() -> {
                                             exchange.getExchange().getResponse()
-                                                    .setStatusCode(HttpStatus.OK);
+                                                    .setStatusCode(HttpStatus.FOUND);
+                                            exchange.getExchange().getResponse()
+                                                    .getHeaders()
+                                                    .setLocation(URI.create("/shop"));
                                         }))
                         )
                 )
+                .anonymous(Customizer.withDefaults())
                 .build();
     }
 

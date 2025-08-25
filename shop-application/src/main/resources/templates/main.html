@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+
 
 <meta charset="UTF-8">
 
@@ -8,18 +10,21 @@
 </head>
 
 <body>
-    <a th:href="@{/register}" style="float:right;">
-        <b>Новый пользователь &cudarrr;</b>
+    <a th:href="@{/register}" style="float:right;" sec:authorize="isAnonymous()">
+        <b>Регистрация &cudarrr;</b>
     </a>
-    <form th:action="@{/logout}" method="post">
+    <a th:href="@{/login}" style="float:right;" sec:authorize="isAnonymous()">
+        <b>Войти &cudarrr;</b>
+    </a>
+    <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
         <a th:href="@{/logout}" style="float:right;">
             <button type="submit">Выйти</button>
         </a>
     </form>
-    <a th:href="@{/shop/orders}" style="float:right;">
+    <a th:href="@{/shop/orders}" style="float:right;" sec:authorize="isAuthenticated()">
         <b>ЗАКАЗЫ &cudarrr;</b>
     </a>
-    <a th:href="@{/shop/cart}" style="float:right;">
+    <a th:href="@{/shop/cart}" style="float:right;" sec:authorize="isAuthenticated()">
         <b>КОРЗИНА &cudarrr;</b>
     </a>
     <table style="width:70%;margin-left:auto;margin-right:auto;">
@@ -82,7 +87,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <form th:action="@{/shop/change/{id} (id = ${product.getId()})}" method="post">
+                            <form th:action="@{/shop/change/{id} (id = ${product.getId()})}" method="post" sec:authorize="isAuthenticated()">
                                 <input type="hidden" name="redirect" value="main"/>
                                 <button name="action" th:if="${product.getCount() > 0}" value="minus">-</button>
                                 <span th:text="${product.getCount()}"></span>
