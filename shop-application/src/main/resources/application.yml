@@ -14,6 +14,20 @@ spring:
       port: ${SPRING_REDIS_PORT:6379}
   cache:
     type: redis
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://keycloak:8080/realms/master
+        registration:
+          shop-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: shop-client
+            client-secret: NioFeR8rMpO8nOU2cCdsfB1CGeBrygMl
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
 
 values:
   img_folder: F:\Images

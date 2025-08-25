@@ -3,11 +3,11 @@ package ru.yjailbir.payment_service.dto;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
+import javax.annotation.processing.Generated;
 
-import javax.annotation.Generated;
 
 /**
  * ErrorResponse
@@ -38,7 +38,7 @@ public class ErrorResponse {
    * Сообщение об ошибке
    * @return error
    */
-  @NotNull 
+  @NotNull
   @Schema(name = "error", description = "Сообщение об ошибке", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("error")
   public String getError() {

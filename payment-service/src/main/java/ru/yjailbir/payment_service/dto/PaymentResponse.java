@@ -2,13 +2,13 @@ package ru.yjailbir.payment_service.dto;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import javax.annotation.processing.Generated;
 
-import javax.annotation.Generated;
 
 /**
  * PaymentResponse
@@ -44,7 +44,7 @@ public class PaymentResponse {
    * Успешность платежа
    * @return success
    */
-  @NotNull 
+  @NotNull
   @Schema(name = "success", description = "Успешность платежа", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("success")
   public Boolean getSuccess() {

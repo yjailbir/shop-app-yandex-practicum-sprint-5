@@ -3,11 +3,11 @@ package ru.yjailbir.payment_service.dto;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
+import javax.annotation.processing.Generated;
 
-import javax.annotation.Generated;
 
 /**
  * BalanceResponse
@@ -41,7 +41,7 @@ public class BalanceResponse {
    * Идентификатор пользователя
    * @return userId
    */
-  @NotNull 
+  @NotNull
   @Schema(name = "userId", description = "Идентификатор пользователя", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("userId")
   public String getUserId() {

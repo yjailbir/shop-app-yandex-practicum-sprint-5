@@ -1,7 +1,12 @@
 package ru.yjailbir.shopappyandexpracticumsprint5.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +26,14 @@ import java.util.List;
 @RequestMapping("/shop")
 public class ShopController {
     private final ProductService productService;
+    private final ReactiveOAuth2AuthorizedClientManager manager;
     private final WebClient webClient;
 
     @Autowired
-    public ShopController(ProductService productService) {
+    public ShopController(ProductService productService, ReactiveOAuth2AuthorizedClientManager auth2AuthorizedClientManager) {
         this.productService = productService;
-        this.webClient = WebClient.builder().build();
+        this.manager = auth2AuthorizedClientManager;
+        this.webClient = WebClient.create("http://payment-service:8082");
     }
 
     @GetMapping
@@ -77,8 +84,7 @@ public class ShopController {
                         return "redirect:/shop";
                     } else if ("cart".equals(formData.getRedirect())) {
                         return "redirect:/shop/cart";
-                    }
-                    else if (formData.getRedirect().equals(id.toString())) {
+                    } else if (formData.getRedirect().equals(id.toString())) {
                         return "redirect:/shop/" + formData.getRedirect();
                     }
                     return "redirect:/shop";
@@ -93,11 +99,19 @@ public class ShopController {
                     model.addAttribute("products", products);
 
                     Mono<Integer> sumMono = productService.getSumFromItemsList(products);
-                    Mono<Long> balanceMono = webClient.get()
-                            .uri("http://payment-service:8082/payments/balance/1")
-                            .retrieve()
-                            .bodyToMono(PaymentsApiBalanceResponseDto.class)
-                            .map(PaymentsApiBalanceResponseDto::getBalance);
+                    Mono<Long> balanceMono = manager.authorize(OAuth2AuthorizeRequest
+                                    .withClientRegistrationId("shop-client")
+                                    .principal(user.getUsername())
+                                    .build())
+                            .map(OAuth2AuthorizedClient::getAccessToken)
+                            .map(OAuth2AccessToken::getTokenValue)
+                            .flatMap(accessToken -> webClient.get()
+                                    .uri("/payments/balance/1")
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                    .retrieve()
+                                    .bodyToMono(PaymentsApiBalanceResponseDto.class)
+                                    .map(PaymentsApiBalanceResponseDto::getBalance)
+                            );
 
                     return Mono.zip(sumMono, balanceMono)
                             .map(tuple -> {
@@ -116,18 +130,28 @@ public class ShopController {
     public Mono<String> makeOrder(@AuthenticationPrincipal ShopUserDetails user) {
         return productService.getCart(user)
                 .collectList()
-                .flatMap(items -> {
-                    Long sum = Long.valueOf(productService.getSumFromItemsList(items).block());
-                    PaymentsApiPayRequestDto paymentRequest = new PaymentsApiPayRequestDto("1", sum);
-
-                    return webClient.post()
-                            .uri("http://payment-service:8082/payments/pay")
-                            .bodyValue(paymentRequest)
-                            .retrieve()
-                            .bodyToMono(Void.class)
-                            .then(productService.makeOrder(user)
-                                    .map(orderId -> "redirect:/shop/orders/" + orderId));
-                });
+                .flatMap(items ->
+                        productService.getSumFromItemsList(items)
+                                .map(sum -> new PaymentsApiPayRequestDto("1", Long.valueOf(sum)))
+                )
+                .flatMap(paymentRequest ->
+                        manager.authorize(OAuth2AuthorizeRequest
+                                        .withClientRegistrationId("shop-client")
+                                        .principal(user.getUsername())
+                                        .build())
+                                .map(OAuth2AuthorizedClient::getAccessToken)
+                                .map(OAuth2AccessToken::getTokenValue)
+                                .flatMap(accessToken -> webClient.post()
+                                        .uri("/payments/pay")
+                                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                        .bodyValue(paymentRequest)
+                                        .retrieve()
+                                        .bodyToMono(Void.class)
+                                )
+                )
+                .then(productService.makeOrder(user)
+                        .map(orderId -> "redirect:/shop/orders/" + orderId)
+                );
     }
 
     @GetMapping("/orders/{id}")

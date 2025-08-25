@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-04T21:17:01.787026800+03:00[Europe/Moscow]", comments = "Generator version: 7.12.0")
@@ -22,7 +22,9 @@ public class PaymentsController implements DefaultApi {
 
     @Override
     public Mono<ResponseEntity<BalanceResponse>> getBalance(String userId, ServerWebExchange exchange) {
-        //Id добавлено заранее для следующего дз (на всякий случай. при ненадобности будет убрано)
+        //Id добавлено заранее для следующего дз (на всякий случай. При ненадобности будет убрано)
+        //В целом оно не пригодилось, но пусть останется. Оно работает - я его не трогаю
+        //Энивей всё по тз
         return Mono.just(ResponseEntity.ok(new BalanceResponse("-1", balance.get())));
     }
 
@@ -34,6 +36,7 @@ public class PaymentsController implements DefaultApi {
         });
     }
 
+    //Костыль с прошлой дз
     //Для тестов
     public void setBalance(Long balance) {
         this.balance.set(balance);

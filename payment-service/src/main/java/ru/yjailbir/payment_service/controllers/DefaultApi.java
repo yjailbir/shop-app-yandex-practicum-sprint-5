@@ -5,6 +5,7 @@
  */
 package ru.yjailbir.payment_service.controllers;
 
+import jakarta.validation.Valid;
 import ru.yjailbir.payment_service.dto.BalanceResponse;
 import ru.yjailbir.payment_service.dto.ErrorResponse;
 import ru.yjailbir.payment_service.dto.PaymentRequest;
@@ -24,8 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-04T21:17:01.787026800+03:00[Europe/Moscow]", comments = "Generator version: 7.12.0")
 @Validated

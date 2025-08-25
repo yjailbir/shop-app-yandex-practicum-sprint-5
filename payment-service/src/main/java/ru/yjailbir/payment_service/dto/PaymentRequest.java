@@ -3,11 +3,11 @@ package ru.yjailbir.payment_service.dto;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
-
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 /**
  * PaymentRequest
@@ -41,7 +41,7 @@ public class PaymentRequest {
    * Идентификатор пользователя
    * @return userId
    */
-  @NotNull 
+  @NotNull
   @Schema(name = "userId", description = "Идентификатор пользователя", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("userId")
   public String getUserId() {
@@ -62,7 +62,7 @@ public class PaymentRequest {
    * minimum: 0
    * @return amount
    */
-  @NotNull @DecimalMin("0") 
+  @NotNull @DecimalMin("0")
   @Schema(name = "amount", description = "Сумма для списания", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("amount")
   public Long getAmount() {
