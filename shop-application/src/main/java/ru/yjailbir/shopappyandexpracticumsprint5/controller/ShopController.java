@@ -106,7 +106,7 @@ public class ShopController {
                             .map(OAuth2AuthorizedClient::getAccessToken)
                             .map(OAuth2AccessToken::getTokenValue)
                             .flatMap(accessToken -> webClient.get()
-                                    .uri("/payments/balance/1")
+                                    .uri("/payments/balance")
                                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                     .retrieve()
                                     .bodyToMono(PaymentsApiBalanceResponseDto.class)
@@ -135,24 +135,28 @@ public class ShopController {
                                 .map(sum -> new PaymentsApiPayRequestDto("1", Long.valueOf(sum)))
                 )
                 .flatMap(paymentRequest ->
+                        // Авторизуем клиента и получаем токен
                         manager.authorize(OAuth2AuthorizeRequest
                                         .withClientRegistrationId("shop-client")
                                         .principal(user.getUsername())
-                                        .build())
-                                .map(OAuth2AuthorizedClient::getAccessToken)
-                                .map(OAuth2AccessToken::getTokenValue)
-                                .flatMap(accessToken -> webClient.post()
-                                        .uri("/payments/pay")
-                                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                                        .bodyValue(paymentRequest)
-                                        .retrieve()
-                                        .bodyToMono(Void.class)
+                                        .build()
                                 )
+                                .flatMap(client -> {
+                                    String accessToken = client.getAccessToken().getTokenValue();
+                                    return webClient.post()
+                                            .uri("/payments/pay")
+                                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                            .bodyValue(paymentRequest)
+                                            .retrieve()
+                                            .bodyToMono(Void.class);
+                                })
                 )
-                .then(productService.makeOrder(user)
-                        .map(orderId -> "redirect:/shop/orders/" + orderId)
+                .then(
+                        productService.makeOrder(user)
+                                .map(orderId -> "redirect:/shop/orders/" + orderId)
                 );
     }
+
 
     @GetMapping("/orders/{id}")
     public Mono<String> order(@PathVariable("id") Long id, Model model) {
